@@ -1,0 +1,138 @@
+.vkuiPanelHeader__separator {
+  margin-top: 0;
+}
+
+#settings_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+#group_schedule_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+#group_selector_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+#information_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+
+  .information_card {
+    padding: var(--vkui--size_base_padding_vertical--regular);
+  }
+}
+
+.selector_body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+#teacher_selector_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+#teacher_schedule_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+.hmtpk-popover {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--vkui--size_base_padding_horizontal--regular);
+}
+
+.selector_buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+}
+
+.hmtpk-button {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+#my_schedule_resize {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_vertical--regular);
+}
+
+.hmtpk-lesson {
+  margin: 0 4px;
+  padding: 0;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+
+  .hmtpk-lesson-time {
+    flex: 0 0 4em;
+    text-align: center;
+    background: none;
+    padding: var(--vkui--size_base_padding_vertical--regular) 0;
+  }
+
+  .hmtpk-lesson-block {
+    flex: 1 1 0;
+    padding: var(--vkui--size_base_padding_vertical--regular) 0;
+
+    .hmtpk-lesson-name {
+      padding: 0 var(--vkui--size_base_padding_horizontal--regular) 2px 0;
+      text-overflow: ellipsis;
+      font-weight: var(--vkui--font_weight_accent2);
+      margin-left: var(--vkui--size_base_padding_horizontal--regular);
+    }
+
+    .hmtpk-lesson-teacher {
+      padding: 6px 0 2px;
+      margin-left: var(--vkui--size_base_padding_horizontal--regular);
+      display: flex;
+      align-items: center;
+      font-size: var(--vkui--font_headline1--font_size--compact);
+    }
+
+    .hmtpk-lesson-group {
+      padding: 2px 0;
+      margin-left: var(--vkui--size_base_padding_horizontal--regular);
+      font-size: var(--vkui--font_headline1--font_size--compact);
+      display: flex;
+    }
+
+    .hmtpk-lesson-room {
+      padding: 2px 0;
+      margin-left: var(--vkui--size_base_padding_horizontal--regular);
+      font-size: var(--vkui--font_headline1--font_size--compact);
+      display: flex;
+    }
+  }
+}
+
+.vkuiPopoutRoot__popout {
+  z-index: calc(var(--vkui--z_index_popout) + 1);
+}
