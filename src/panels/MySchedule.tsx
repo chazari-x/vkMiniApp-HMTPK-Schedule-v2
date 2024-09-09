@@ -51,7 +51,7 @@ const MySchedule: FC<{
 
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
-    if (date > minDate || date < maxDate) {
+    if (date > maxDate || date <= minDate) {
       routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}`)
       return
     }

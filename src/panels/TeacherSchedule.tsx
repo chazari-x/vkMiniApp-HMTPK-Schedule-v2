@@ -76,7 +76,7 @@ const TeacherSchedule: FC<{
     setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${encodeURIComponent(value)}`)
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
-    if (option == undefined || option.label == "" || option.value == "" || date > maxDate || date < minDate) {
+    if (option == undefined || option.label == "" || option.value == "" || date > maxDate || date <= minDate) {
       routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`)
       return
     }

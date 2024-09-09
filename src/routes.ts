@@ -19,7 +19,9 @@ export const DEFAULT_VIEW_PANELS = {
   GroupSelector: 'group_selector',
   TeacherSelector: 'teacher_selector',
   Announce: 'announce',
-  News: 'news'
+  News: 'news',
+  College: 'college',
+  Abitur: 'abitur'
 } as const;
 
 export const routes = RoutesConfig.create([
@@ -34,6 +36,8 @@ export const routes = RoutesConfig.create([
       createPanel(DEFAULT_VIEW_PANELS.TeacherSelector, `/${DEFAULT_VIEW_PANELS.TeacherSelector}`, []),
       createPanel(DEFAULT_VIEW_PANELS.Announce, `/${DEFAULT_VIEW_PANELS.Announce}`, []),
       createPanel(DEFAULT_VIEW_PANELS.News, `/${DEFAULT_VIEW_PANELS.News}`, []),
+      createPanel(DEFAULT_VIEW_PANELS.College, `/${DEFAULT_VIEW_PANELS.College}`, []),
+      createPanel(DEFAULT_VIEW_PANELS.Abitur, `/${DEFAULT_VIEW_PANELS.Abitur}`, []),
     ]),
   ]),
 ]);

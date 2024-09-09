@@ -47,6 +47,11 @@ const Information: FC<{
           </Link> {config.texts.OfficialSource}
         </div>}
       />
+      <Card
+        className='information_card'
+        mode="outline-tint"
+        children={<div>{config.texts.SchedulePreparedIn1c}</div>}
+      />
     </div>
   </Panel>
 }

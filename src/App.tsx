@@ -14,6 +14,7 @@ import GroupSelector from "./panels/GroupSelector.tsx";
 import TeacherSchedule from "./panels/TeacherSchedule.tsx";
 import TeacherSelector from "./panels/TeacherSelector.tsx";
 import Menu from "./components/Menu.tsx";
+import config from "./etc/config.json";
 
 export const App = () => {
   const {panel: activePanel = DEFAULT_VIEW_PANELS.MySchedule} = useActiveVkuiLocation();
@@ -70,8 +71,34 @@ export const App = () => {
       DEFAULT_VIEW_PANELS.TeacherSelector,
       DEFAULT_VIEW_PANELS.Settings
     ] as string[]).includes(panel)) return
+
+    switch (panel) {
+      case DEFAULT_VIEW_PANELS.Information:
+        setHeader(config.pages.Information)
+        break
+      case DEFAULT_VIEW_PANELS.Settings:
+        setHeader(config.pages.Settings)
+        break
+      case DEFAULT_VIEW_PANELS.Announce:
+        setHeader(config.pages.Announce)
+        break
+      case DEFAULT_VIEW_PANELS.News:
+        setHeader(config.pages.News)
+        break
+      case DEFAULT_VIEW_PANELS.College:
+        setHeader(config.pages.College)
+        break
+      case DEFAULT_VIEW_PANELS.Abitur:
+        setHeader(config.pages.Abitur)
+        break
+      default:
+        setHeader(config.pages.Schedule)
+    }
+
     setMode(panel)
   }, [panel]);
+
+  const [header, setHeader] = useState(config.pages.Schedule)
 
   return (
     <SplitLayout popout={popout}>
@@ -83,7 +110,7 @@ export const App = () => {
             userSettings={userSettings}
             setPopout={setPopout}
             popout={popout}
-            panelHeader={<Header toggleContext={toggleContext}/>}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
           <Settings
             id={DEFAULT_VIEW_PANELS.Settings}
@@ -91,7 +118,7 @@ export const App = () => {
             setPopout={setPopout}
             userSettings={userSettings}
             setUserSettings={setUserSettings}
-            panelHeader={<Header toggleContext={toggleContext}
+            panelHeader={<Header header={header} toggleContext={toggleContext}
                                  disabled={userSettings.teacher == "" && userSettings.group == ""}/>}
           />
           <GroupSchedule
@@ -101,7 +128,7 @@ export const App = () => {
             option={groupOption}
             setOption={setGroupOption}
             subgroup={subgroup}
-            panelHeader={<Header toggleContext={toggleContext}/>}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
           <GroupSelector
             id={DEFAULT_VIEW_PANELS.GroupSelector}
@@ -110,7 +137,7 @@ export const App = () => {
             setOption={setGroupOption}
             subgroup={subgroup}
             setSubgroup={setSubgroup}
-            panelHeader={<Header toggleContext={toggleContext}/>}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
           <TeacherSchedule
             id={DEFAULT_VIEW_PANELS.TeacherSchedule}
@@ -118,18 +145,18 @@ export const App = () => {
             setPopout={setPopout}
             option={teacherOption}
             setOption={setTeacherOption}
-            panelHeader={<Header toggleContext={toggleContext}/>}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
           <TeacherSelector
             id={DEFAULT_VIEW_PANELS.TeacherSelector}
             setPopout={setPopout}
             option={teacherOption}
             setOption={setTeacherOption}
-            panelHeader={<Header toggleContext={toggleContext}/>}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
           <Information
             id={DEFAULT_VIEW_PANELS.Information}
-            panelHeader={<Header toggleContext={toggleContext}/>}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
         </Epic>}
       </SplitCol>
