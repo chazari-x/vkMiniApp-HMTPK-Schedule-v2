@@ -1,5 +1,4 @@
 import bridge from "@vkontakte/vk-bridge";
-import config from "../etc/config.json";
 import {Lesson, MergedLesson} from "../types.ts";
 
 export const CapitalizeFirstLetter = (str: string) => {
@@ -9,7 +8,7 @@ export const CapitalizeFirstLetter = (str: string) => {
 }
 
 export function FormatName(inputName: string | undefined) {
-  if (!inputName) return config.texts.Teacher;
+  if (!inputName) return "Преподаватель"
 
   const parts = inputName.split(" ");
 
@@ -44,10 +43,12 @@ export function SetupResizeObserver(id: string) {
 
     const headerHeight = panelHeader.item(0)!.clientHeight;
 
-    bridge.supportsAsync("VKWebAppResizeWindow").then( res => {
+    const height = element.clientHeight + headerHeight + margin * 2
+
+    bridge.supportsAsync("VKWebAppResizeWindow").then(res => {
       if (res) {
         bridge.send("VKWebAppResizeWindow", {
-          height: element.clientHeight + headerHeight + margin * 2,
+          height: height >= 600 ? height : 600,
           width: element.clientWidth
         });
       }

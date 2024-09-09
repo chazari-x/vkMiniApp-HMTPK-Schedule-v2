@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from "react";
-import {Button, Cell, CustomSelect, Footer, FormItem, Panel, Search} from "@vkontakte/vkui";
+import {Button, Cell, CustomSelect, FormItem, Panel, Placeholder, Search} from "@vkontakte/vkui";
 import {Icon16CancelCircleOutline, Icon24Done} from "@vkontakte/icons";
 import config from "../etc/config.json";
 import {useRouteNavigator} from "@vkontakte/vk-mini-apps-router";
@@ -18,15 +18,12 @@ const GroupSelector: FC<{
   panelHeader: React.ReactNode
   setPopout: (popout: React.ReactNode) => void
 }> = ({id, option, setOption, subgroup, setSubgroup, panelHeader, setPopout}) => {
-  useEffect(() => {
-    SetupResizeObserver("group_selector_resize")
-  }, []);
-
+  useEffect(() => SetupResizeObserver("group_selector_resize"), []);
   const routeNavigator = useRouteNavigator();
-
   const [selectedDate,] = useState(new Date())
 
   const [options, setOptions] = useState<Option[] | undefined>()
+  useEffect(() => updateGroups(), []);
   const updateGroups = () => {
     setPopout(<Loader/>)
     GetGroups()
@@ -35,18 +32,10 @@ const GroupSelector: FC<{
       .finally(() => setPopout(null))
   }
 
-  useEffect(() => {
-    updateGroups()
-  }, []);
-
   const [search, setSearch] = React.useState('');
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  };
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
 
-  const thematicsFiltered = options?.filter(
-    ({label}) => label.toLowerCase().indexOf(search.toLowerCase()) > -1,
-  );
+  const thematicsFiltered = options?.filter(({label}) => label.toLowerCase().indexOf(search.toLowerCase()) > -1);
 
   const [subgroups,] = useState<Option[]>([
     {'label': '1 подгруппа', 'value': '1'},
@@ -59,16 +48,20 @@ const GroupSelector: FC<{
     <div id="group_selector_resize">
       <div className="selector_buttons">
         <Button
-          appearance='negative' align="center" mode="outline"
+          appearance='negative'
+          align="center"
+          mode="outline"
           onClick={() => routeNavigator.back()}
           before={<Icon16CancelCircleOutline/>}
-        >{config.buttons.close}</Button>
+          children={config.buttons.close}
+        />
       </div>
 
       <div className="selector_body">
         <FormItem noPadding>
           <CustomSelect
-            placeholder="Выберите подгруппу" options={subgroups}
+            placeholder={config.texts.SelectSubgroup}
+            options={subgroups}
             onChange={event => setSubgroup(event.target.value)}
             value={subgroup}
           />
@@ -84,10 +77,11 @@ const GroupSelector: FC<{
                   routeNavigator.replace(`/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${selectedDate.getDate()}&month=${selectedDate.getMonth() + 1}&year=${selectedDate.getFullYear()}&value=${o.value}`)
                 }}
                 after={
-                  option?.value == o.value ? <Icon24Done fill="var(--vkui--color_icon_accent)" /> : null
+                  option?.value == o.value ? <Icon24Done fill="var(--vkui--color_icon_accent)"/> : null
                 }
-              >{o.label}</Cell>
-            ) : <Footer>{config.texts.NotFound}</Footer>)}
+                children={o.label}
+              />
+            ) : <Placeholder>{config.texts.NotFound}</Placeholder>)}
         </div>
       </div>
     </div>

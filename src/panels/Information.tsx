@@ -1,4 +1,4 @@
-import {FC, useEffect} from 'react';
+import {FC, ReactNode, useEffect} from 'react';
 import {Card, Link, Panel} from '@vkontakte/vkui';
 import "@vkontakte/icons";
 import {Icon24ExternalLinkOutline} from "@vkontakte/icons";
@@ -7,51 +7,48 @@ import {SetupResizeObserver} from "../utils/utils.tsx";
 
 const Information: FC<{
   id: string,
-  panelHeader: React.ReactNode
+  panelHeader: ReactNode
 }> = ({id, panelHeader}) => {
   useEffect(() => SetupResizeObserver("information_resize"), []);
 
-  return (<Panel id={id}>
+  return <Panel id={id}>
     {panelHeader}
     <div id="information_resize">
       <Card
         className='information_card'
         mode="outline-tint"
-      >
-        <div>
-          {config.texts.Paragraph3}
-        </div>
-      </Card>
+        children={<div>{config.texts.AppInformation}</div>}
+      />
       <Card
         className='information_card'
         mode="outline-tint"
-      >
-        <div>
-          {config.texts.Paragraph4}
-        </div>
-      </Card>
+        children={<div>{config.texts.CheckScheduleOnSite}</div>}
+      />
       <Card
         className='information_card'
         mode="outline-tint"
-      >
-        <div>
-          <Link href={config.group.hrefs.vk} target="_blank">
+        children={<div>{config.texts.HowUseApplication}</div>}
+      />
+      <Card
+        className='information_card'
+        mode="outline-tint"
+        children={<div>
+          <Link href={config.group.href} target="_blank">
             {config.group.name}<Icon24ExternalLinkOutline width={16} height={16}/>
-          </Link> {config.texts.Paragraph5}
-        </div>
-      </Card>
+          </Link> {config.texts.ErrorsOrInaccuracies}
+        </div>}
+      />
       <Card
         className='information_card'
         mode="outline-tint"
-      >
-        <div>
+        children={<div>
           <Link href='https://hmtpk.ru/' target="_blank">
-            {config.links.link1}<Icon24ExternalLinkOutline width={16} height={16}/>
-          </Link> {config.texts.Paragraph6}
-        </div>
-      </Card>
+            {config.texts.OfficialCollegeSite}<Icon24ExternalLinkOutline width={16} height={16}/>
+          </Link> {config.texts.OfficialSource}
+        </div>}
+      />
     </div>
-  </Panel>);
+  </Panel>
 }
 
 export default Information;

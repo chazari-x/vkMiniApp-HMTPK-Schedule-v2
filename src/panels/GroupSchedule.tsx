@@ -26,6 +26,9 @@ const GroupSchedule: FC<{
 }> = ({id, setPopout, popout, option, setOption, subgroup, panelHeader}) => {
   useEffect(() => SetupResizeObserver("group_schedule_resize"), []);
 
+  const [maxDate, ] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
+  const [minDate, ] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
+
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
   const [dayNum, setDayNum] = useState<number | undefined>()
@@ -58,7 +61,7 @@ const GroupSchedule: FC<{
           .then(groups => {
             const o = groups.find(group => group.value === value)
             if (o == undefined) {
-              console.error(`Group with value ${value} not found`)
+              setErrorMessage(config.errors.GroupNotFound)
               return
             }
             setOption(o)
@@ -76,12 +79,10 @@ const GroupSchedule: FC<{
       month = `0${month}`
     }
 
-    setLink(`https://vk.com/hmtpk_schedule#/${id}?day=${day}&month=${month}&year=${year}&value=${value}`)
+    setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${value}`)
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
-    if (option == undefined || option.label == "" || option.value == ""
-      || date > new Date((new Date()).setMonth((new Date()).getMonth() + 1))
-      || date < new Date((new Date()).setFullYear((new Date()).getFullYear() - 10))) {
+    if (option == undefined || option.label == "" || option.value == "" || date > maxDate || date < minDate) {
       routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`)
       return
     }
@@ -106,7 +107,7 @@ const GroupSchedule: FC<{
     if (popout != null || option == undefined || option.value == "") return
     setPopout(<Loader/>)
     setErrorMessage(undefined)
-    setTitle(`Расписание группы`)
+    setTitle(config.texts.GroupSchedule)
     GetGroupSchedule(selectedDate, option.value)
       .then(setSchedule)
       .catch((err: Error) => setErrorMessage(err.message))
@@ -142,9 +143,10 @@ const GroupSchedule: FC<{
                 size='m'
                 value={selectedDate}
                 onChange={change}
-                disablePickers={true} showNeighboringMonth={true}
-                maxDateTime={new Date((new Date()).setMonth((new Date()).getMonth() + 1))}
-                minDateTime={new Date((new Date()).setFullYear((new Date()).getFullYear() - 10))}
+                disablePickers
+                showNeighboringMonth
+                maxDateTime={maxDate}
+                minDateTime={minDate}
               />
             </LocaleProvider>}
             children={<Button

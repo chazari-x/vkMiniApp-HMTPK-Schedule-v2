@@ -1,5 +1,5 @@
-import {Button, Calendar, LocaleProvider, Panel, Placeholder, PullToRefresh, Spinner,} from "@vkontakte/vkui";
-import React, {FC, useEffect, useState} from "react";
+import {Button, Calendar, LocaleProvider, Panel, Placeholder, PullToRefresh, Spinner} from "@vkontakte/vkui";
+import {FC, ReactNode, useEffect, useState} from "react";
 import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import {GetGroupSchedule, GetTeacherSchedule} from "../api/api";
 import {CapitalizeFirstLetter, MergeLessons, SetupResizeObserver} from "../utils/utils.tsx";
@@ -13,15 +13,19 @@ import Scrollable from "../components/Scrollable.tsx";
 import SeptemberAlert from "../components/SeptemberAlert.tsx";
 import CheckScheduleButton from "../components/CheckScheduleButton.tsx";
 import ShareButton from "../components/ShareButton.tsx";
+import config from "../etc/config.json";
 
 const MySchedule: FC<{
   id: string
-  setPopout: (popout: React.ReactNode) => void
-  popout: React.ReactNode
-  panelHeader: React.ReactNode
+  setPopout: (popout: ReactNode) => void
+  popout: ReactNode
+  panelHeader: ReactNode
   userSettings: UserSettings
 }> = ({id, setPopout, popout, panelHeader, userSettings}) => {
   useEffect(() => SetupResizeObserver("my_schedule_resize"), []);
+
+  const [maxDate, ] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
+  const [minDate, ] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
 
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
@@ -47,7 +51,7 @@ const MySchedule: FC<{
 
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
-    if (date > new Date((new Date()).setMonth((new Date()).getMonth() + 1)) || date < new Date((new Date()).setFullYear((new Date()).getFullYear() - 10))) {
+    if (date > minDate || date < maxDate) {
       routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}`)
       return
     }
@@ -73,15 +77,15 @@ const MySchedule: FC<{
     setPopout(<Loader/>)
     setErrorMessage(undefined)
     if (userSettings.group != "") {
-      setTitle(`Расписание группы`)
-      setLink(`https://vk.com/hmtpk_schedule#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.group}`)
+      setTitle(config.texts.GroupSchedule)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.group}`)
       GetGroupSchedule(selectedDate, userSettings.group)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
         .finally(() => setPopout(null))
     } else if (userSettings.teacher != "") {
-      setTitle(`Расписание преподавателя`)
-      setLink(`https://vk.com/hmtpk_schedule#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.teacher}`)
+      setTitle(config.texts.TeacherSchedule)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.teacher}`)
       GetTeacherSchedule(selectedDate, userSettings.teacher)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
@@ -97,7 +101,7 @@ const MySchedule: FC<{
       setMergedLessons(MergeLessons(schedule[dayNum].lesson));
   }, [dayNum, schedule]);
 
-  const [calendar, setCalendar] = React.useState(false)
+  const [calendar, setCalendar] = useState(false)
   return (
     <Panel id={id}>
       {panelHeader}
@@ -118,9 +122,10 @@ const MySchedule: FC<{
                   size='m'
                   value={selectedDate}
                   onChange={change}
-                  disablePickers={true} showNeighboringMonth={true}
-                  maxDateTime={new Date((new Date()).setMonth((new Date()).getMonth() + 1))}
-                  minDateTime={new Date((new Date()).setFullYear((new Date()).getFullYear() - 10))}
+                  disablePickers
+                  showNeighboringMonth
+                  maxDateTime={maxDate}
+                  minDateTime={minDate}
                 />
               </LocaleProvider>}
               children={<Button
@@ -135,7 +140,7 @@ const MySchedule: FC<{
             />
 
             <Button
-              aria-label="Настройки"
+              aria-label={config.buttons.settings}
               align="center"
               appearance='accent-invariable'
               mode="outline"

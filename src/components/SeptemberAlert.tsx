@@ -4,9 +4,7 @@ import config from "../etc/config.json";
 import {Link} from "@vkontakte/vkui";
 import {Icon24ExternalLinkOutline} from "@vkontakte/icons";
 
-const SeptemberAlert: FC<{
-  selectedDate: Date
-}> = ({selectedDate}) => {
+const SeptemberAlert: FC<{ selectedDate: Date }> = ({selectedDate}) => {
   return selectedDate.getMonth() == 8 ? <Alert
     variant="outlined"
     severity="warning"

@@ -16,6 +16,11 @@ import {useEffect} from "react";
 import {GetSlidesSheet, SaveSlidesSheet, SendSlidesSheet} from "./api/api.ts";
 
 declare global {
+  interface Window {
+    vk_user_id: number | undefined;
+    vk_is_recommended: number | undefined;
+  }
+
   interface Date {
     getWeek(): number;
   }
@@ -25,9 +30,14 @@ export const AppConfig = () => {
   const vkBridgeAppearance = useAppearance() || undefined;
   const vkBridgeInsets = useInsets() || undefined;
   const adaptivity = transformVKBridgeAdaptivity(useAdaptivity());
-  const {vk_platform} = parseURLSearchParamsForGetLaunchParams(window.location.search);
+  const {vk_platform, vk_is_recommended, vk_user_id} = parseURLSearchParamsForGetLaunchParams(window.location.search);
 
   useEffect(() => {
+    window.vk_user_id = vk_user_id
+    window.vk_is_recommended = vk_is_recommended
+
+    console.log(window.vk_user_id, window.vk_is_recommended)
+
     bridge.supportsAsync("VKWebAppJoinGroup").then(res => {
       if (res) {
         setTimeout(() => {

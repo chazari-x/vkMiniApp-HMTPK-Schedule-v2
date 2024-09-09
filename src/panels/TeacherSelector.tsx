@@ -17,12 +17,11 @@ const TeacherSelector: FC<{
   setPopout: (popout: React.ReactNode) => void
 }> = ({id, option, setOption, panelHeader, setPopout}) => {
   useEffect(() => SetupResizeObserver("teacher_selector_resize"), []);
-
   const routeNavigator = useRouteNavigator();
-
   const [selectedDate,] = useState(new Date())
 
   const [options, setOptions] = useState<Option[] | undefined>()
+  useEffect(() => updateGroups(), []);
   const updateGroups = () => {
     setPopout(<Loader/>)
     GetTeachers()
@@ -31,7 +30,6 @@ const TeacherSelector: FC<{
       .finally(() => setPopout(null))
   }
 
-  useEffect(() => updateGroups(), []);
 
   const [search, setSearch] = React.useState('');
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
@@ -43,7 +41,9 @@ const TeacherSelector: FC<{
     <div id="teacher_selector_resize">
       <div className="selector_buttons">
         <Button
-          appearance='negative' align="center" mode="outline"
+          appearance='negative'
+          align="center"
+          mode="outline"
           onClick={() => routeNavigator.back()}
           before={<Icon16CancelCircleOutline/>}
           children={config.buttons.close}

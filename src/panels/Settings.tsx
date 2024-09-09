@@ -102,9 +102,7 @@ const Settings: FC<{
     }
   }, [tempUserSettings]);
 
-  const changetype = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setType(e.target.value)
-  }
+  const changeType = (e: React.ChangeEvent<HTMLSelectElement>) => setType(e.target.value)
 
   return <Panel id={id}>
     {panelHeader}
@@ -112,7 +110,9 @@ const Settings: FC<{
       <div className="selector_buttons">
         <Button
           disabled={userSettings == undefined || (userSettings.group == "" && userSettings.teacher == "")}
-          appearance='negative' align="center" mode="outline"
+          appearance='negative'
+          align="center"
+          mode="outline"
           onClick={() => routeNavigator.replace("/")}
           before={<Icon16CancelCircleOutline/>}
           children={userSettings && tempUserSettings
@@ -127,13 +127,13 @@ const Settings: FC<{
 
       <FormItem noPadding>
         <CustomSelect
-          placeholder="Выберите тип пользователя"
+          placeholder={config.texts.SelectUserType}
           value={type != undefined ? type : ""}
-          onChange={changetype}
-          options={[{label: config.texts.Group, value: config.texts.Group}, {
-            label: config.texts.Teacher,
-            value: config.texts.Teacher
-          }]}
+          onChange={changeType}
+          options={[
+            {label: config.texts.Group, value: config.texts.Group},
+            {label: config.texts.Teacher, value: config.texts.Teacher}
+          ]}
         />
       </FormItem>
 
@@ -141,7 +141,7 @@ const Settings: FC<{
           ? <>
             <FormItem noPadding>
               <CustomSelect
-                placeholder="Выберите группу"
+                placeholder={config.texts.SelectGroup}
                 searchable
                 options={groupOptions ?? []}
                 onChange={changeGroup}
@@ -153,7 +153,7 @@ const Settings: FC<{
             <FormItem noPadding>
               <CustomSelect
                 disabled={!tempUserSettings || tempUserSettings.group == ""}
-                placeholder="Выберите подгруппу"
+                placeholder={config.texts.SelectSubgroup}
                 options={subgroups}
                 onChange={changeSubgroup}
                 value={tempUserSettings ? tempUserSettings.subgroup : "1 и 2"}
@@ -162,7 +162,7 @@ const Settings: FC<{
           </>
           : <FormItem noPadding>
             <CustomSelect
-              placeholder="Выберите преподавателя"
+              placeholder={config.texts.SelectTeacher}
               searchable
               options={teacherOptions ?? []}
               onChange={changeTeacher}
@@ -179,13 +179,13 @@ const Settings: FC<{
         style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
       >
         <div style={{marginBottom: '10px'}}>
-          {config.texts.Paragraph1} <Link
-          href={config.group.hrefs.vk}
+          {config.texts.GroupOrTeacherNotFound} <Link
+          href={config.group.href}
           target="_blank">{config.group.name}
           <Icon24ExternalLinkOutline width={16} height={16}/></Link>.
         </div>
         <div>
-          {config.texts.Paragraph2}
+          {config.texts.Thanks}
         </div>
       </Alert>
 
@@ -193,9 +193,8 @@ const Settings: FC<{
         variant="outlined"
         severity="warning"
         style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
-      >
-        Укажите свою группу или преподавателя для сохранения настроек.
-      </Alert>}
+        children={config.errors.TeacherOrGroupIsNull}
+      />}
 
       <Button
         appearance='positive'
@@ -207,7 +206,7 @@ const Settings: FC<{
         children={config.buttons.save}
       />
 
-      {window.user && window.user.id == 390295814 && <Button
+      {window.vk_user_id == 390295814 && <Button
         appearance='negative'
         align='center'
         mode='outline'

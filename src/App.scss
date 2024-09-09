@@ -136,3 +136,42 @@
 .vkuiPopoutRoot__popout {
   z-index: calc(var(--vkui--z_index_popout) + 1);
 }
+
+.hmtpk-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  width: 70vw;
+  max-width: 300px;
+  min-height: min-content;
+  background-color: var(--vkui--color_background_content);
+
+  .hmtpk-drawer-header-block {
+    background: #19274B;
+    padding: var(--vkui--size_base_padding_horizontal--regular);
+    display: flex;
+    flex-direction: column;
+    gap: var(--vkui--size_base_padding_vertical--regular);
+
+    & > div:first-child {
+      width: min-content;
+      margin: 0 auto;
+    }
+
+    .hmtpk-drawer-header {
+      text-align: center;
+      color: white;
+    }
+  }
+
+  .hmtpk-drawer-buttons {
+    flex: 1;
+    //padding: var(--vkui--size_base_padding_horizontal--regular) 0;
+    background-color: var(--vkui--color_background_content);
+
+    & > div {
+      padding-right: var(--vkui--size_base_padding_horizontal--regular);
+    }
+  }
+}

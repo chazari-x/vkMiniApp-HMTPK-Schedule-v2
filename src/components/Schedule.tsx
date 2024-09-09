@@ -3,6 +3,7 @@ import React, {FC} from "react";
 import {Icon28User, Icon28Users} from "@vkontakte/icons";
 import {Alert} from "@mui/material";
 import {MergedLesson, Schedule as ScheduleType} from "../types.ts";
+import config from "../etc/config.json";
 
 const Schedule: FC<{
   errorMessage: string | undefined
@@ -23,59 +24,57 @@ const Schedule: FC<{
           color = 'var(--vkui--color_text_secondary)'
         }
 
-        return (
-          <CardGrid
-            key={`lesson-${mergedLesson.num}-num-${index}`}
-            size='m'
-            className="hmtpk-lesson"
-            style={{color: c}}
-          >
-            <div className="hmtpk-lesson-time" style={{color: c}}>
-              {mergedLesson.time.replace('- ', '')}
-            </div>
-            <div className="hmtpk-lesson-block">
-              <div className="hmtpk-lesson-name">{mergedLesson.name}</div>
+        return <CardGrid
+          key={`lesson-${mergedLesson.num}-num-${index}`}
+          size='m'
+          className="hmtpk-lesson"
+          style={{color: c}}
+        >
+          <div className="hmtpk-lesson-time" style={{color: c}}>
+            {mergedLesson.time.replace('- ', '')}
+          </div>
+          <div className="hmtpk-lesson-block">
+            <div className="hmtpk-lesson-name">{mergedLesson.name}</div>
 
-              {mergedLesson.subgroups.map((subgroup, subIndex) => (
-                <React.Fragment key={`subgroup-${index}-${subIndex}`}>
-                  {subgroup.teacher !== '' && <div className="hmtpk-lesson-teacher">
-                    <Icon28User width={16} height={16} fill={color}/>{`${subgroup.teacher}`}
-                  </div>}
+            {mergedLesson.subgroups.map((subgroup, subIndex) => (
+              <React.Fragment key={`subgroup-${index}-${subIndex}`}>
+                {subgroup.teacher !== '' && <div className="hmtpk-lesson-teacher">
+                  <Icon28User width={16} height={16} fill={color}/>{`${subgroup.teacher}`}
+                </div>}
 
-                  {subgroup.group !== '' && <div className="hmtpk-lesson-group">
-                    <div style={{marginRight: '4px'}}>
-                      <Icon28Users width={16} height={16} fill={color}/>
-                    </div>
-                    <div>{subgroup.group}</div>
-                    <div style={{color: color}}>
-                      {subgroup.subgroup !== '' && ` / подгр. ${subgroup.subgroup}`}
-                    </div>
-                  </div>}
+                {subgroup.group !== '' && <div className="hmtpk-lesson-group">
+                  <div style={{marginRight: '4px'}}>
+                    <Icon28Users width={16} height={16} fill={color}/>
+                  </div>
+                  <div>{subgroup.group}</div>
+                  <div style={{color: color}}>
+                    {subgroup.subgroup !== '' && ` / подгр. ${subgroup.subgroup}`}
+                  </div>
+                </div>}
 
-                  {subgroup.group === '' && subgroup.subgroup !== "" &&
-                    <div className="hmtpk-lesson-group" style={{color: color}}>
-                      {`подгр. ${subgroup.subgroup}`}
-                    </div>
-                  }
+                {subgroup.group === '' && subgroup.subgroup !== "" &&
+                  <div className="hmtpk-lesson-group" style={{color: color}}>
+                    {`подгр. ${subgroup.subgroup}`}
+                  </div>
+                }
 
-                  {(subgroup.room !== "" || subgroup.location !== "") &&
-                    <div className="hmtpk-lesson-room" style={{color: color}}>
-                      {`ауд. ${subgroup.room}`}{subgroup.location !== "" && ` / ${subgroup.location}`}
-                    </div>
-                  }
-                </React.Fragment>
-              ))}
-            </div>
-          </CardGrid>
-        )
+                {(subgroup.room !== "" || subgroup.location !== "") &&
+                  <div className="hmtpk-lesson-room" style={{color: color}}>
+                    {`ауд. ${subgroup.room}`}{subgroup.location !== "" && ` / ${subgroup.location}`}
+                  </div>
+                }
+              </React.Fragment>
+            ))}
+          </div>
+        </CardGrid>
       })
-      : <Placeholder children="Нет занятий"/>
+      : <Placeholder children={config.texts.NoLessons}/>
     : errorMessage != undefined ? <Alert
     variant="outlined"
     severity="error"
     style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
     children={errorMessage}
-  /> : <Placeholder children="Нет занятий"/>}
+  /> : <Placeholder children={config.texts.NoLessons}/>}
 </div>
 
 export default Schedule;
