@@ -7,7 +7,7 @@ const Header: FC<{
   toggleContext: () => void
   header: string
 }> = ({disabled, toggleContext, header}) => <PanelHeader
-  before={<IconButton disabled={disabled} onClick={toggleContext}><Icon28Menu/></IconButton>}
+  before={<IconButton aria-label="menu" disabled={disabled} onClick={toggleContext}><Icon28Menu/></IconButton>}
   children={header}
 />
 

@@ -4,7 +4,6 @@ import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import {GetGroupSchedule, GetTeacherSchedule} from "../api/api";
 import {CapitalizeFirstLetter, MergeLessons, SetupResizeObserver} from "../utils/utils.tsx";
 import {MergedLesson, Schedule as ScheduleType, UserSettings} from "../types.ts";
-import Loader from "../components/Loader.tsx";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import {Icon24Settings} from "@vkontakte/icons";
 import Schedule from "../components/Schedule.tsx";
@@ -24,13 +23,14 @@ const MySchedule: FC<{
 }> = ({id, setPopout, popout, panelHeader, userSettings}) => {
   useEffect(() => SetupResizeObserver("my_schedule_resize"), []);
 
-  const [maxDate, ] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
-  const [minDate, ] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
+  const [maxDate,] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
+  const [minDate,] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
 
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
   const [dayNum, setDayNum] = useState<number | undefined>()
   const [week, setWeek] = useState<number | undefined>()
+  const [year, setYear] = useState<number | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [link, setLink] = useState<string | undefined>()
   const {panel} = useActiveVkuiLocation();
@@ -61,6 +61,7 @@ const MySchedule: FC<{
     if (dayNum === -1) dayNum = 6
     setDayNum(dayNum)
     setWeek(date.getWeek())
+    setYear(date.getFullYear())
   }, [params])
 
   const change = (date: Date | undefined) => {
@@ -74,11 +75,11 @@ const MySchedule: FC<{
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const onRefresh = () => {
     if (popout != null || userSettings.group == "" && userSettings.teacher == "" || week == undefined) return
-    setPopout(<Loader/>)
     setErrorMessage(undefined)
     if (userSettings.group != "") {
       setTitle(config.texts.GroupSchedule)
       setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.group}`)
+      setPopout(<div/>)
       GetGroupSchedule(selectedDate, userSettings.group)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
@@ -86,6 +87,7 @@ const MySchedule: FC<{
     } else if (userSettings.teacher != "") {
       setTitle(config.texts.TeacherSchedule)
       setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.teacher}`)
+      setPopout(<div/>)
       GetTeacherSchedule(selectedDate, userSettings.teacher)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
@@ -93,7 +95,7 @@ const MySchedule: FC<{
     }
   }
 
-  useEffect(() => onRefresh(), [week]);
+  useEffect(() => onRefresh(), [week, year]);
 
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {

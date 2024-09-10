@@ -70,7 +70,7 @@ export async function GetGroupSchedule(date: Date, group: string) {
       }
 
       // Если расписание не устарело
-      if (parsed.timestamp != undefined && parsed.timestamp + 1000 > Date.now()) {
+      if (parsed.timestamp != undefined && parsed.timestamp + 60000 > Date.now()) {
         return parsed.schedule;
       }
     }
@@ -99,7 +99,7 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
       };
 
       // Если расписание не устарело
-      if (parsed.timestamp != undefined && parsed.timestamp + 1000 > Date.now()) {
+      if (parsed.timestamp != undefined && parsed.timestamp + 60000 > Date.now()) {
         return parsed.schedule;
       }
     }

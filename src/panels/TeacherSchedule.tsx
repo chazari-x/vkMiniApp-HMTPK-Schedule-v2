@@ -32,6 +32,7 @@ const TeacherSchedule: FC<{
   const [params,] = useSearchParams();
   const [dayNum, setDayNum] = useState<number | undefined>()
   const [week, setWeek] = useState<number | undefined>()
+  const [year, setYear] = useState<number | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [link, setLink] = useState<string | undefined>()
   const {panel} = useActiveVkuiLocation();
@@ -86,6 +87,7 @@ const TeacherSchedule: FC<{
     if (dayNum === -1) dayNum = 6
     setDayNum(dayNum)
     setWeek(date.getWeek())
+    setYear(date.getFullYear())
   }, [params])
 
   const change = (date: Date | undefined) => {
@@ -99,16 +101,16 @@ const TeacherSchedule: FC<{
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const onRefresh = () => {
     if (popout != null || option == undefined || option.value == "" || week == undefined) return
-    setPopout(<Loader/>)
     setErrorMessage(undefined)
     setTitle(config.texts.TeacherSchedule)
+    setPopout(<div/>)
     GetTeacherSchedule(selectedDate, option.value)
       .then(setSchedule)
       .catch((err: Error) => setErrorMessage(err.message))
       .finally(() => setPopout(null))
   }
 
-  useEffect(() => onRefresh(), [week, option, option?.label]);
+  useEffect(() => onRefresh(), [week, option, option?.label, year]);
 
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {

@@ -51,7 +51,7 @@ const College: FC<{
       label: 'Вакантные места для приёма (перевода)',
       value: 'sveden/vacant/#textbody'
     },
-  ] as {label: string, value: string, disabled?: boolean}[]
+  ] as { label: string, value: string, disabled?: boolean }[]
 
   return <Panel id={id}>
     {panelHeader}

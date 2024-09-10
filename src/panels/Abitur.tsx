@@ -51,7 +51,7 @@ const Abitur: FC<{
       label: 'Часто задаваемые вопросы',
       value: 'abitur/faq-abitur/#textbody'
     },
-  ] as {label: string, value: string, disabled?: boolean}[]
+  ] as { label: string, value: string, disabled?: boolean }[]
 
   return <Panel id={id}>
     {panelHeader}

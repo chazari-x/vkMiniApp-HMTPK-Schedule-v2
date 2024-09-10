@@ -33,6 +33,7 @@ const GroupSchedule: FC<{
   const [params,] = useSearchParams();
   const [dayNum, setDayNum] = useState<number | undefined>()
   const [week, setWeek] = useState<number | undefined>()
+  const [year, setYear] = useState<number | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [link, setLink] = useState<string | undefined>()
   const [subgroupValue, setSubgroupValue] = useState<string>(subgroup)
@@ -92,6 +93,7 @@ const GroupSchedule: FC<{
     if (dayNum === -1) dayNum = 6
     setDayNum(dayNum)
     setWeek(date.getWeek())
+    setYear(date.getFullYear())
   }, [params])
 
   const change = (date: Date | undefined) => {
@@ -105,16 +107,16 @@ const GroupSchedule: FC<{
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const onRefresh = () => {
     if (popout != null || option == undefined || option.value == "") return
-    setPopout(<Loader/>)
     setErrorMessage(undefined)
     setTitle(config.texts.GroupSchedule)
+    setPopout(<div/>)
     GetGroupSchedule(selectedDate, option.value)
       .then(setSchedule)
       .catch((err: Error) => setErrorMessage(err.message))
       .finally(() => setPopout(null))
   }
 
-  useEffect(() => onRefresh(), [week, option, option?.label]);
+  useEffect(() => onRefresh(), [week, option, option?.label, year]);
 
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {
