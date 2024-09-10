@@ -4,13 +4,11 @@ import {useAdaptivity, useAppearance, useInsets} from '@vkontakte/vk-bridge-reac
 import {AdaptivityProvider, AppRoot, ConfigProvider} from '@vkontakte/vkui';
 import {RouterProvider} from '@vkontakte/vk-mini-apps-router';
 import '@vkontakte/vkui/dist/vkui.css';
-
 import {transformVKBridgeAdaptivity} from './utils';
 import {router} from './routes';
 import {App} from './App';
 import {createTheme, ThemeProvider} from "@mui/material";
 import "./App.scss";
-
 import config from './etc/config.json';
 import {useEffect} from "react";
 import {GetSlidesSheet, SaveSlidesSheet, SendSlidesSheet} from "./api/api.ts";
@@ -50,28 +48,22 @@ export const AppConfig = () => {
 
     GetSlidesSheet()
       .then((showed) => {
-        if (!showed) SendSlidesSheet(vkBridgeAppearance)
+        if (!showed) SendSlidesSheet()
           .then((data) => {
-            if (data.result) {
-              SaveSlidesSheet(data.action === "confirm")
-            }
+            if (data.result) SaveSlidesSheet(data.action === "confirm")
           })
           .catch(console.error);
       })
-      .catch(() => SendSlidesSheet(vkBridgeAppearance)
+      .catch(() => SendSlidesSheet()
         .then((data) => {
-          if (data.result) {
-            SaveSlidesSheet(data.action === "confirm")
-          }
+          if (data.result) SaveSlidesSheet(data.action === "confirm")
         })
         .catch(console.error)
       )
   }, []);
 
   const darkTheme = createTheme({
-    palette: {
-      mode: vkBridgeAppearance, // Устанавливаем темную тему
-    },
+    palette: {mode: vkBridgeAppearance},
   });
 
   return (

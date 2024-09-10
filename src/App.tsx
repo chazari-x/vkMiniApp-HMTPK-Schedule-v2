@@ -15,6 +15,8 @@ import TeacherSchedule from "./panels/TeacherSchedule.tsx";
 import TeacherSelector from "./panels/TeacherSelector.tsx";
 import Menu from "./components/Menu.tsx";
 import config from "./etc/config.json";
+import College from "./panels/College.tsx";
+import Abitur from "./panels/Abitur.tsx";
 
 export const App = () => {
   const {panel: activePanel = DEFAULT_VIEW_PANELS.MySchedule} = useActiveVkuiLocation();
@@ -118,8 +120,10 @@ export const App = () => {
             setPopout={setPopout}
             userSettings={userSettings}
             setUserSettings={setUserSettings}
-            panelHeader={<Header header={header} toggleContext={toggleContext}
-                                 disabled={userSettings.teacher == "" && userSettings.group == ""}/>}
+            panelHeader={<Header
+              header={header} toggleContext={toggleContext}
+              disabled={userSettings.teacher == "" && userSettings.group == ""}
+            />}
           />
           <GroupSchedule
             id={DEFAULT_VIEW_PANELS.GroupSchedule}
@@ -156,6 +160,14 @@ export const App = () => {
           />
           <Information
             id={DEFAULT_VIEW_PANELS.Information}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+          />
+          <College
+            id={DEFAULT_VIEW_PANELS.College}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+          />
+          <Abitur
+            id={DEFAULT_VIEW_PANELS.Abitur}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
         </Epic>}

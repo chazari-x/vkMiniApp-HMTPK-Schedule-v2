@@ -2,7 +2,7 @@ import {Button, CustomSelect, FormItem, Link, Panel} from "@vkontakte/vkui";
 import React, {FC, useEffect, useState} from "react";
 import {Icon16CancelCircleOutline, Icon24ExternalLinkOutline} from "@vkontakte/icons";
 import config from "../etc/config.json";
-import {DeleteUserSettings, GetGroups, GetTeachers, SaveUserSettings} from "../api/api.ts";
+import {DeleteSlidesSheet, DeleteUserSettings, GetGroups, GetTeachers, SaveUserSettings} from "../api/api.ts";
 import {Option, UserSettings} from "../types.ts";
 import Loader from "../components/Loader.tsx";
 import {Alert} from "@mui/material";
@@ -37,9 +37,13 @@ const Settings: FC<{
     if (popout != null) return
     setPopout(<Loader/>)
     DeleteUserSettings()
-      .then(console.log)
+      .then(() => {
+       DeleteSlidesSheet()
+         .then(console.log)
+         .catch(console.error)
+         .finally(() => setPopout(null))
+      })
       .catch(console.error)
-      .finally(() => setPopout(null))
   }
 
   const [groupOptions, setGroupOptions] = useState<Option[] | undefined>()
@@ -189,7 +193,9 @@ const Settings: FC<{
         </div>
       </Alert>
 
-      {tempUserSettings == undefined || (tempUserSettings.group == "" && tempUserSettings.teacher == "") && <Alert
+      {(tempUserSettings == undefined
+        || type == config.texts.Group && tempUserSettings.group == ""
+        || type == config.texts.Teacher && tempUserSettings.teacher == "") && <Alert
         variant="outlined"
         severity="warning"
         style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}

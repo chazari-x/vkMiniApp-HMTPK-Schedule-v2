@@ -35,8 +35,7 @@ async function sendRequest(href: string) {
         case 401:
           throw new Error(config.errors.Token)
         case 500:
-          const data = await response.json()
-          if (data.message == "hmtpk not working") {
+          if ((await response.json()).message == "hmtpk not working") {
             throw new Error(config.errors.TimeoutExceeded)
           }
           throw new Error(config.errors.APINotWorking)
@@ -143,42 +142,42 @@ export async function GetTeachers() {
   return data
 }
 
-export async function SaveTooltips(tooltips: boolean[]) {
+// Удалить информацию о показе slides sheet
+export async function DeleteSlidesSheet() {
   const response = await bridge.send('VKWebAppStorageSet', {
-    key: 'tooltips',
-    value: JSON.stringify(tooltips)
+    key: 'slidesSheet',
+    value: ''
   })
 
   return response.result
 }
 
-export function SaveSlidesSheet(slidesSheet: boolean) {
-  bridge.send('VKWebAppStorageSet', {
+// Сохранить информацию о показе slides sheet
+export async function SaveSlidesSheet(slidesSheet: boolean) {
+  const response = await bridge.send('VKWebAppStorageSet', {
     key: 'slidesSheet',
     value: JSON.stringify(slidesSheet)
   })
+
+  return response.result
 }
 
+// Получить информацию о показе slides sheet
 export async function GetSlidesSheet() {
-  console.log("GetSlidesSheet")
+  const response = await bridge.send('VKWebAppStorageGet', {
+    keys: ['slidesSheet']
+  })
 
-  // const response = await bridge.send('VKWebAppStorageGet', {
-  //   keys: ['slidesSheet']
-  // })
-  //
-  // console.log(response.keys[0].value ?? "null")
-  //
-  // return JSON.parse(response.keys[0].value) as boolean
-
-  return false
+  return JSON.parse(response.keys[0].value) as boolean
 }
 
-export function SendSlidesSheet(vkBridgeAppearance: string | undefined) {
+// Отправить пользователю slides sheet
+export function SendSlidesSheet() {
   return bridge.send('VKWebAppShowSlidesSheet', {
     slides: [
       {
         media: {
-          blob: base64.first,
+          blob: base64.one,
           type: 'image'
         },
         title: config.onboardings.one.title,
@@ -186,7 +185,7 @@ export function SendSlidesSheet(vkBridgeAppearance: string | undefined) {
       },
       {
         media: {
-          blob: vkBridgeAppearance === 'light' ? base64.white.my : base64.dark.my,
+          blob: base64.two,
           type: 'image'
         },
         title: config.onboardings.two.title,
@@ -194,7 +193,7 @@ export function SendSlidesSheet(vkBridgeAppearance: string | undefined) {
       },
       {
         media: {
-          blob: vkBridgeAppearance === 'light' ? base64.white.group : base64.dark.group,
+          blob: base64.three,
           type: 'image'
         },
         title: config.onboardings.three.title,
@@ -202,7 +201,7 @@ export function SendSlidesSheet(vkBridgeAppearance: string | undefined) {
       },
       {
         media: {
-          blob: vkBridgeAppearance === 'light' ? base64.white.teacher : base64.dark.teacher,
+          blob: base64.four,
           type: 'image'
         },
         title: config.onboardings.four.title,
@@ -210,17 +209,34 @@ export function SendSlidesSheet(vkBridgeAppearance: string | undefined) {
       },
       {
         media: {
-          blob: vkBridgeAppearance === 'light' ? base64.white.button : base64.dark.button,
+          blob: base64.five,
           type: 'image'
         },
         title: config.onboardings.five.title,
         subtitle: config.onboardings.five.subtitle
+      },
+      {
+        media: {
+          blob: base64.six,
+          type: 'image'
+        },
+        title: config.onboardings.six.title,
+        subtitle: config.onboardings.six.subtitle
+      },
+      {
+        media: {
+          blob: base64.seven,
+          type: 'image'
+        },
+        title: config.onboardings.seven.title,
+        subtitle: config.onboardings.seven.subtitle
       }
     ]
   })
 
 }
 
+// Сохранить пользовательские настройки
 export async function SaveUserSettings(userSettings: UserSettings) {
   const response = await bridge.send('VKWebAppStorageSet', {
     key: 'schedule',
@@ -230,6 +246,7 @@ export async function SaveUserSettings(userSettings: UserSettings) {
   return response.result
 }
 
+// Получить пользовательские настройки
 export async function GetUserSettings() {
   const response = await bridge.send('VKWebAppStorageGet', {
     keys: ['schedule']
@@ -238,6 +255,7 @@ export async function GetUserSettings() {
   return JSON.parse(response.keys[0].value) as UserSettings
 }
 
+// Удалить пользовательские настройки
 export async function DeleteUserSettings() {
   const response = await bridge.send('VKWebAppStorageSet', {
     key: 'schedule',

@@ -11,12 +11,12 @@ import {SetupResizeObserver} from "../utils/utils.tsx";
 
 const GroupSelector: FC<{
   id: string,
+  panelHeader: React.ReactNode
+  setPopout: (popout: React.ReactNode) => void
   option: Option | undefined
   setOption: (option: Option) => void
   subgroup: string
   setSubgroup: (subgroup: string) => void
-  panelHeader: React.ReactNode
-  setPopout: (popout: React.ReactNode) => void
 }> = ({id, option, setOption, subgroup, setSubgroup, panelHeader, setPopout}) => {
   useEffect(() => SetupResizeObserver("group_selector_resize"), []);
   const routeNavigator = useRouteNavigator();

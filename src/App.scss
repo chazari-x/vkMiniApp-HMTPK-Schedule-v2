@@ -28,10 +28,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--vkui--size_base_padding_vertical--regular);
-
-  .information_card {
-    padding: var(--vkui--size_base_padding_vertical--regular);
-  }
 }
 
 .selector_body {
@@ -160,18 +156,23 @@
     }
 
     .hmtpk-drawer-header {
-      text-align: center;
       color: white;
+      text-align: center;
     }
   }
 
   .hmtpk-drawer-buttons {
     flex: 1;
-    //padding: var(--vkui--size_base_padding_horizontal--regular) 0;
     background-color: var(--vkui--color_background_content);
+    padding: 0 calc(var(--vkui--size_base_padding_vertical--regular) / 2);
 
-    & > div {
-      padding-right: var(--vkui--size_base_padding_horizontal--regular);
+    .hmtpk-drawer-buttons-block {
+      margin: calc(var(--vkui--size_base_padding_horizontal--regular) / 2) 0;
+
+      .hmtpk-drawer-header {
+        text-align: center;
+        padding: calc(var(--vkui--size_base_padding_vertical--regular) / 2);
+      }
     }
   }
 }
