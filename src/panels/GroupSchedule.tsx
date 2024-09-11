@@ -42,15 +42,16 @@ const GroupSchedule: FC<{
   useEffect(() => {
     if (panel !== id) return;
 
+    const value = params.get('value') ?? option?.value ?? ""
+
     if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}`)
+      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`)
       return
     }
 
     let day = params.get('day')!
     let month = params.get('month')!
     const year = params.get('year')!
-    const value = params.get('value') ?? ""
     const subgroup = params.get('subgroup')
     if (subgroup != undefined && (["1 и 2", "1", "2"] as string[]).includes(subgroup)) {
       setSubgroupValue(subgroup)
@@ -74,15 +75,16 @@ const GroupSchedule: FC<{
     }
 
     if (day.length === 1) day = `0${day}`
-    if (month.length === 1)  month = `0${month}`
-
-    setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${value}`)
+    if (month.length === 1) month = `0${month}`
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
-    if (option == undefined || option.label == "" || option.value == "" || date > maxDate || date <= minDate) {
+    if (date > maxDate || date <= minDate) {
       routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`)
       return
     }
+
+    if (value != "") setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${value}`)
+    else setLink(undefined)
 
     setSelectedDate(date)
     let dayNum = date.getDay() - 1
@@ -91,22 +93,23 @@ const GroupSchedule: FC<{
     setWeek(date.getWeek())
     setYear(date.getFullYear())
     setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
-  }, [params])
+  }, [params, panel])
 
   const change = (date: Date | undefined) => {
     if (date == undefined || option == undefined) return
     routeNavigator.replace(`/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${option.value}`)
+    setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${option.value}`)
     setCalendar(false)
   }
 
-  const [title, setTitle] = useState<string | undefined>()
+  const [title,] = useState<string>(config.texts.GroupSchedule)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
     if (popout != null || fetching || option == undefined || option.value == "") return
     setErrorMessage(undefined)
-    setTitle(config.texts.GroupSchedule)
+    setSchedule(undefined)
     setFetching(true)
     GetGroupSchedule(selectedDate, option.value)
       .then(setSchedule)

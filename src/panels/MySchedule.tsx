@@ -56,21 +56,36 @@ const MySchedule: FC<{
       return
     }
 
+    if (userSettings.group != "") {
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${date.getDate()}&month=${date.getMonth()+1}&year=${date.getFullYear()}&value=${userSettings.group}`)
+      setTitle(config.texts.GroupSchedule)
+    } else if (userSettings.teacher != "") {
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${date.getDate()}&month=${date.getMonth()+1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.teacher)}`)
+      setTitle(config.texts.TeacherSchedule)
+    }
+
     setSelectedDate(date)
     let dayNum = date.getDay() - 1
     if (dayNum === -1) dayNum = 6
     setDayNum(dayNum)
     setWeek(date.getWeek())
     setYear(date.getFullYear())
-  }, [params])
+  }, [params, panel])
 
   const change = (date: Date | undefined) => {
     if (date == undefined) return
+    if (userSettings.group != "") {
+      setTitle(config.texts.GroupSchedule)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${date.getDate()}&month=${date.getMonth()+1}&year=${date.getFullYear()}&value=${userSettings.group}`)
+    } else if (userSettings.teacher != "") {
+      setTitle(config.texts.TeacherSchedule)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${date.getDate()}&month=${date.getMonth()+1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.teacher)}`)
+    }
     routeNavigator.replace(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
     setCalendar(false)
   }
 
-  const [title, setTitle] = useState<string | undefined>()
+  const [title, setTitle] = useState<string | undefined>(userSettings.group != "" ? config.texts.GroupSchedule : userSettings.teacher != "" ? config.texts.GroupSchedule : undefined)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const [fetching, setFetching] = useState(false)
@@ -78,16 +93,16 @@ const MySchedule: FC<{
     if (popout != null || fetching || userSettings.group == "" && userSettings.teacher == "" || week == undefined) return
     setErrorMessage(undefined)
     if (userSettings.group != "") {
+      setSchedule(undefined)
       setTitle(config.texts.GroupSchedule)
-      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.group}`)
       setFetching(true)
       GetGroupSchedule(selectedDate, userSettings.group)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
         .finally(() => setFetching(false))
     } else if (userSettings.teacher != "") {
+      setSchedule(undefined)
       setTitle(config.texts.TeacherSchedule)
-      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.teacher}`)
       setFetching(true)
       GetTeacherSchedule(selectedDate, userSettings.teacher)
         .then(setSchedule)

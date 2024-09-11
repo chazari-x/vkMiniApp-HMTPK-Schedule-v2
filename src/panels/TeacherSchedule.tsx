@@ -25,8 +25,8 @@ const TeacherSchedule: FC<{
 }> = ({id, setPopout, popout, option, setOption, panelHeader}) => {
   useEffect(() => SetupResizeObserver("teacher_schedule_resize"), []);
 
-  const [maxDate, ] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
-  const [minDate, ] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
+  const [maxDate,] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
+  const [minDate,] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
 
   const routeNavigator = useRouteNavigator();
   const [link, setLink] = useState<string | undefined>()
@@ -40,15 +40,16 @@ const TeacherSchedule: FC<{
   useEffect(() => {
     if (panel !== id) return;
 
+    const value = params.get('value') ?? option?.value ?? ""
+
     if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}`)
+      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`)
       return
     }
 
     let day = params.get('day')!
     let month = params.get('month')!
     const year = params.get('year')!
-    const value = params.get('value') ?? ""
 
     if (option == undefined || option.label == "" || option.value == "") {
       if (value != "") {
@@ -69,14 +70,15 @@ const TeacherSchedule: FC<{
 
     if (day.length === 1) day = `0${day}`
     if (month.length === 1) month = `0${month}`
-
-    setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${encodeURIComponent(value)}`)
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
-    if (option == undefined || option.label == "" || option.value == "" || date > maxDate || date <= minDate) {
+    if (date > maxDate || date <= minDate) {
       routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`)
       return
     }
+
+    if (value != "") setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${encodeURIComponent(value)}`)
+    else setLink(undefined)
 
     setSelectedDate(date)
     let dayNum = date.getDay() - 1
@@ -85,22 +87,23 @@ const TeacherSchedule: FC<{
     setWeek(date.getWeek())
     setYear(date.getFullYear())
     setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
-  }, [params])
+  }, [params, panel])
 
   const change = (date: Date | undefined) => {
     if (date == undefined || option == undefined) return
     routeNavigator.replace(`/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`)
+    setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`)
     setCalendar(false)
   }
 
-  const [title, setTitle] = useState<string | undefined>()
+  const [title,] = useState<string>(config.texts.TeacherSchedule)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
     if (popout != null || fetching || option == undefined || option.value == "") return
     setErrorMessage(undefined)
-    setTitle(config.texts.TeacherSchedule)
+    setSchedule(undefined)
     setFetching(true)
     GetTeacherSchedule(selectedDate, option.value)
       .then(setSchedule)
