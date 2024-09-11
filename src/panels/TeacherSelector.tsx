@@ -21,8 +21,8 @@ const TeacherSelector: FC<{
   const [selectedDate,] = useState(new Date())
 
   const [options, setOptions] = useState<Option[] | undefined>()
-  useEffect(() => updateGroups(), []);
-  const updateGroups = () => {
+  useEffect(() => updateOptions(), []);
+  const updateOptions = () => {
     setPopout(<Loader/>)
     GetTeachers()
       .then(setOptions)
@@ -30,9 +30,13 @@ const TeacherSelector: FC<{
       .finally(() => setPopout(null))
   }
 
-
   const [search, setSearch] = React.useState('');
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+      .replace(/^\s+/, '')  // Удаляет пробелы в начале строки
+      .replace(/\s{2,}/g, ' ');  // Заменяет несколько пробелов на один
+    setSearch(value);
+  };
 
   const thematicsFiltered = options?.filter(({label}) => label.toLowerCase().indexOf(search.toLowerCase()) > -1);
 

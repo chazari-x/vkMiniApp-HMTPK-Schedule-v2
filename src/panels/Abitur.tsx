@@ -9,11 +9,11 @@ const Abitur: FC<{
   const elements = [
     {
       label: 'Приемная комиссия',
-      value: 'abitur/admission/#textbody'
+      value: 'abitur/admission/#step745'
     },
     {
       label: 'Правила и условия приёма',
-      value: 'abitur/admission/#textbody'
+      value: 'abitur/admission/#step745'
     },
     {
       label: 'Специальности и направления',
@@ -29,15 +29,15 @@ const Abitur: FC<{
     },
     {
       label: 'Информация о количестве поданных заявлений',
-      value: 'abitur/admission/#textbody'
+      value: 'abitur/admission/#step751'
     },
     {
       label: 'Рейтинг-листы',
-      value: 'applicants/rating/#textbody'
+      value: 'abitur/admission/#step751'
     },
     {
       label: 'Список лиц, рекомендованных к зачислению',
-      value: 'abitur/admission/#textbody'
+      value: 'abitur/admission/#step751'
     },
     {
       label: 'Платные образовательные услуги',
@@ -45,7 +45,7 @@ const Abitur: FC<{
     },
     {
       label: 'Информация об общежитии',
-      value: 'abitur/admission/#textbody'
+      value: 'abitur/admission/#step750'
     },
     {
       label: 'Часто задаваемые вопросы',

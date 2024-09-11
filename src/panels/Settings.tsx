@@ -30,7 +30,10 @@ const Settings: FC<{
     SaveUserSettings(tempUserSettings)
       .then(console.log)
       .catch(console.error)
-      .finally(() => setPopout(null))
+      .finally(() => {
+        setPopout(null)
+        routeNavigator.replace("/")
+      })
   }
 
   const deleteUserSettings = () => {

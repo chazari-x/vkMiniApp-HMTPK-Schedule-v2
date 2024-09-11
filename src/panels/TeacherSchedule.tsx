@@ -100,7 +100,7 @@ const TeacherSchedule: FC<{
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const onRefresh = () => {
-    if (popout != null || option == undefined || option.value == "" || week == undefined) return
+    if (popout != null || option == undefined || option.value == "") return
     setErrorMessage(undefined)
     setTitle(config.texts.TeacherSchedule)
     setPopout(<div/>)
