@@ -2,7 +2,7 @@ import React, {FC, useEffect, useState} from "react";
 import {Button, Cell, Panel, Placeholder, Search} from "@vkontakte/vkui";
 import {Icon16CancelCircleOutline, Icon24Done} from "@vkontakte/icons";
 import config from "../etc/config.json";
-import {useRouteNavigator} from "@vkontakte/vk-mini-apps-router";
+import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import {Option} from "../types.ts";
 import Loader from "../components/Loader.tsx";
 import {GetTeachers} from "../api/api.ts";
@@ -18,7 +18,27 @@ const TeacherSelector: FC<{
 }> = ({id, option, setOption, panelHeader, setPopout}) => {
   useEffect(() => SetupResizeObserver("teacher_selector_resize"), []);
   const routeNavigator = useRouteNavigator();
-  const [selectedDate,] = useState(new Date())
+
+  const {panel} = useActiveVkuiLocation();
+  const [params,] = useSearchParams();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  useEffect(() => {
+    if (panel !== id) return;
+
+    if (!params.get('day') || !params.get('month') || !params.get('year')) {
+      return
+    }
+
+    let day = params.get('day')!
+    let month = params.get('month')!
+    const year = params.get('year')!
+
+    if (day.length === 1) day = `0${day}`
+    if (month.length === 1) month = `0${month}`
+
+    const date = new Date(Date.parse(`${year}-${month}-${day}`))
+    setSelectedDate(date)
+  }, []);
 
   const [options, setOptions] = useState<Option[] | undefined>()
   useEffect(() => updateOptions(), []);

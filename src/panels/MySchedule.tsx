@@ -20,7 +20,7 @@ const MySchedule: FC<{
   popout: ReactNode
   panelHeader: ReactNode
   userSettings: UserSettings
-}> = ({id, setPopout, popout, panelHeader, userSettings}) => {
+}> = ({id, popout, panelHeader, userSettings}) => {
   useEffect(() => SetupResizeObserver("my_schedule_resize"), []);
 
   const [maxDate,] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
@@ -73,25 +73,26 @@ const MySchedule: FC<{
   const [title, setTitle] = useState<string | undefined>()
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
+  const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
-    if (popout != null || userSettings.group == "" && userSettings.teacher == "" || week == undefined) return
+    if (popout != null || fetching || userSettings.group == "" && userSettings.teacher == "" || week == undefined) return
     setErrorMessage(undefined)
     if (userSettings.group != "") {
       setTitle(config.texts.GroupSchedule)
       setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.group}`)
-      setPopout(<div/>)
+      setFetching(true)
       GetGroupSchedule(selectedDate, userSettings.group)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
-        .finally(() => setPopout(null))
+        .finally(() => setFetching(false))
     } else if (userSettings.teacher != "") {
       setTitle(config.texts.TeacherSchedule)
       setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${selectedDate.getDay()}&month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}&value=${userSettings.teacher}`)
-      setPopout(<div/>)
+      setFetching(true)
       GetTeacherSchedule(selectedDate, userSettings.teacher)
         .then(setSchedule)
         .catch((err: Error) => setErrorMessage(err.message))
-        .finally(() => setPopout(null))
+        .finally(() => setFetching(false))
     }
   }
 
@@ -107,7 +108,7 @@ const MySchedule: FC<{
   return (
     <Panel id={id}>
       {panelHeader}
-      <PullToRefresh onRefresh={onRefresh} isFetching={popout != null}>
+      <PullToRefresh onRefresh={onRefresh} isFetching={popout != null || fetching}>
         {selectedDate != undefined && <div id="my_schedule_resize">
           <div className="hmtpk-popover">
             <Popover
@@ -156,7 +157,7 @@ const MySchedule: FC<{
 
           <Scrollable selectedDate={selectedDate} setSelectedDate={change}/>
 
-          {popout == null
+          {popout == null && !fetching
             ? <Schedule schedule={schedule} errorMessage={errorMessage} mergedLessons={mergedLessons}
                         dayNum={dayNum} subgroup={userSettings.subgroup}/>
             : <Placeholder><Spinner size="small"/></Placeholder>}

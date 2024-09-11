@@ -1,5 +1,4 @@
-import vkBridge from '@vkontakte/vk-bridge';
-import bridge, {parseURLSearchParamsForGetLaunchParams} from '@vkontakte/vk-bridge';
+import vkBridge, {parseURLSearchParamsForGetLaunchParams} from '@vkontakte/vk-bridge';
 import {useAdaptivity, useAppearance, useInsets} from '@vkontakte/vk-bridge-react';
 import {AdaptivityProvider, AppRoot, ConfigProvider} from '@vkontakte/vkui';
 import {RouterProvider} from '@vkontakte/vk-mini-apps-router';
@@ -9,16 +8,10 @@ import {router} from './routes';
 import {App} from './App';
 import {createTheme, ThemeProvider} from "@mui/material";
 import "./App.scss";
-import config from './etc/config.json';
 import {useEffect} from "react";
-import {GetSlidesSheet, SaveSlidesSheet, SendSlidesSheet} from "./api/api.ts";
+import {AppJoinGroup, AppRecommend, GetSlidesSheet, SaveSlidesSheet, SendSlidesSheet} from "./api/api.ts";
 
 declare global {
-  interface Window {
-    vk_user_id: number | undefined;
-    vk_is_recommended: number | undefined;
-  }
-
   interface Date {
     getWeek(): number;
   }
@@ -28,24 +21,9 @@ export const AppConfig = () => {
   const vkBridgeAppearance = useAppearance() || undefined;
   const vkBridgeInsets = useInsets() || undefined;
   const adaptivity = transformVKBridgeAdaptivity(useAdaptivity());
-  const {vk_platform, vk_is_recommended, vk_user_id} = parseURLSearchParamsForGetLaunchParams(window.location.search);
+  const {vk_platform, vk_is_recommended} = parseURLSearchParamsForGetLaunchParams(window.location.search);
 
   useEffect(() => {
-    window.vk_user_id = vk_user_id
-    window.vk_is_recommended = vk_is_recommended
-
-    console.log(window.vk_user_id, window.vk_is_recommended)
-
-    bridge.supportsAsync("VKWebAppJoinGroup").then(res => {
-      if (res) {
-        setTimeout(() => {
-          bridge.send('VKWebAppJoinGroup', {
-            group_id: config.group.id
-          })
-        }, 5000)
-      }
-    });
-
     GetSlidesSheet()
       .then((showed) => {
         if (!showed) SendSlidesSheet()
@@ -53,6 +31,7 @@ export const AppConfig = () => {
             if (data.result) SaveSlidesSheet(data.action === "confirm")
           })
           .catch(console.error);
+        else vk_is_recommended == 1 ? AppJoinGroup() : AppRecommend()
       })
       .catch(() => SendSlidesSheet()
         .then((data) => {

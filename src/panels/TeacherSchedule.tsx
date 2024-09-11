@@ -29,13 +29,14 @@ const TeacherSchedule: FC<{
   const [minDate, ] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
 
   const routeNavigator = useRouteNavigator();
-  const [params,] = useSearchParams();
+  const [link, setLink] = useState<string | undefined>()
   const [dayNum, setDayNum] = useState<number | undefined>()
   const [week, setWeek] = useState<number | undefined>()
   const [year, setYear] = useState<number | undefined>()
+  const [params,] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [link, setLink] = useState<string | undefined>()
   const {panel} = useActiveVkuiLocation();
+  const [dateParams, setDateParams] = useState<string>("")
   useEffect(() => {
     if (panel !== id) return;
 
@@ -66,13 +67,8 @@ const TeacherSchedule: FC<{
       }
     }
 
-    if (day.length === 1) {
-      day = `0${day}`
-    }
-
-    if (month.length === 1) {
-      month = `0${month}`
-    }
+    if (day.length === 1) day = `0${day}`
+    if (month.length === 1) month = `0${month}`
 
     setLink(`${config.app.href}#/${id}?day=${day}&month=${month}&year=${year}&value=${encodeURIComponent(value)}`)
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
@@ -88,6 +84,7 @@ const TeacherSchedule: FC<{
     setDayNum(dayNum)
     setWeek(date.getWeek())
     setYear(date.getFullYear())
+    setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
   }, [params])
 
   const change = (date: Date | undefined) => {
@@ -99,15 +96,16 @@ const TeacherSchedule: FC<{
   const [title, setTitle] = useState<string | undefined>()
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
+  const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
-    if (popout != null || option == undefined || option.value == "") return
+    if (popout != null || fetching || option == undefined || option.value == "") return
     setErrorMessage(undefined)
     setTitle(config.texts.TeacherSchedule)
-    setPopout(<div/>)
+    setFetching(true)
     GetTeacherSchedule(selectedDate, option.value)
       .then(setSchedule)
       .catch((err: Error) => setErrorMessage(err.message))
-      .finally(() => setPopout(null))
+      .finally(() => setFetching(false))
   }
 
   useEffect(() => onRefresh(), [week, option, option?.label, year]);
@@ -121,7 +119,7 @@ const TeacherSchedule: FC<{
   const [calendar, setCalendar] = React.useState(false)
   return <Panel id={id}>
     {panelHeader}
-    <PullToRefresh onRefresh={onRefresh} isFetching={popout != null}>
+    <PullToRefresh onRefresh={onRefresh} isFetching={popout != null || fetching}>
       {selectedDate != undefined && <div id="teacher_schedule_resize">
         <div className="hmtpk-popover">
           <Popover
@@ -160,7 +158,7 @@ const TeacherSchedule: FC<{
           <Button
             appearance='accent-invariable'
             mode='outline'
-            onClick={() => routeNavigator.push(`/${DEFAULT_VIEW_PANELS.TeacherSelector}`)}
+            onClick={() => routeNavigator.push(`/${DEFAULT_VIEW_PANELS.TeacherSelector}${dateParams}`)}
             children={FormatName(option?.label)}
           />
         </div>
@@ -175,7 +173,7 @@ const TeacherSchedule: FC<{
             style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
             children={config.errors.TeacherIsNull}
           />
-          : popout == null
+          : popout == null && !fetching
             ? <Schedule errorMessage={errorMessage} schedule={schedule} dayNum={dayNum}
                         mergedLessons={mergedLessons}/>
             : <Placeholder><Spinner size="small"/></Placeholder>}

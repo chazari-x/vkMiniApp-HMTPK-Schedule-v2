@@ -59,10 +59,8 @@ const College: FC<{
       key={element.value}
       href={`${config.hrefs.college}/${element.value}`}
       target="_blank"
-      children={<div style={{
-        textWrap: 'wrap',
-        width: '100%',
-      }}>{element.label}</div>}
+      multiline
+      children={element.label}
       disabled={element.disabled}
     />)}
   </Panel>

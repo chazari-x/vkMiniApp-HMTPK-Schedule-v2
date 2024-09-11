@@ -2,12 +2,12 @@ import {Button, CustomSelect, FormItem, Link, Panel} from "@vkontakte/vkui";
 import React, {FC, useEffect, useState} from "react";
 import {Icon16CancelCircleOutline, Icon24ExternalLinkOutline} from "@vkontakte/icons";
 import config from "../etc/config.json";
-import {DeleteSlidesSheet, DeleteUserSettings, GetGroups, GetTeachers, SaveUserSettings} from "../api/api.ts";
+import {CloseApp, DeleteSlidesSheet, DeleteUserSettings, GetGroups, GetTeachers, SaveUserSettings} from "../api/api.ts";
 import {Option, UserSettings} from "../types.ts";
 import Loader from "../components/Loader.tsx";
 import {Alert} from "@mui/material";
 import {SetupResizeObserver} from "../utils/utils.tsx";
-import {useRouteNavigator} from "@vkontakte/vk-mini-apps-router";
+import {useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 
 const Settings: FC<{
   id: string
@@ -20,6 +20,7 @@ const Settings: FC<{
   useEffect(() => SetupResizeObserver("settings_resize"), []);
 
   const routeNavigator = useRouteNavigator();
+  const [params,] = useSearchParams();
 
   const [tempUserSettings, setTempUserSettings] = useState(userSettings)
 
@@ -42,7 +43,7 @@ const Settings: FC<{
     DeleteUserSettings()
       .then(() => {
        DeleteSlidesSheet()
-         .then(console.log)
+         .then(() => CloseApp())
          .catch(console.error)
          .finally(() => setPopout(null))
       })
@@ -215,15 +216,26 @@ const Settings: FC<{
         children={config.buttons.save}
       />
 
-      {window.vk_user_id == 390295814 && <Button
-        appearance='negative'
-        align='center'
-        mode='outline'
-        stretched
-        onClick={deleteUserSettings}
-        disabled={userSettings == undefined || (userSettings.group == "" && userSettings.teacher == "")}
-        children={config.buttons.clear}
-      />}
+      {params.get("tester") != undefined && <>
+        <Button
+          appearance='negative'
+          align='center'
+          mode='outline'
+          stretched
+          onClick={deleteUserSettings}
+          disabled={userSettings == undefined || (userSettings.group == "" && userSettings.teacher == "")}
+          children={config.buttons.clear}
+        />
+        <Alert
+          variant="outlined"
+          severity="info"
+          style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
+        >
+          <div style={{marginBottom: '10px'}}>
+            Эта кнопка очищает все данные. Нажмите ее, чтобы увидеть всё как новый пользователь.
+          </div>
+        </Alert>
+      </>}
     </div>
   </Panel>
 };

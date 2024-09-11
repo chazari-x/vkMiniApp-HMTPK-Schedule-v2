@@ -264,3 +264,23 @@ export async function DeleteUserSettings() {
 
   return response.result
 }
+
+export async function CloseApp() {
+  return await bridge.send('VKWebAppClose', {
+    status: 'success',
+  })
+}
+
+export function AppRecommend() {
+  setTimeout(() => {
+    bridge.send('VKWebAppRecommend')
+  }, 5000)
+}
+
+export function AppJoinGroup() {
+  setTimeout(() => {
+    bridge.send('VKWebAppJoinGroup', {
+      group_id: config.group.id
+    })
+  }, 5000)
+}
