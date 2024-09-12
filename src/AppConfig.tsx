@@ -9,7 +9,15 @@ import {App} from './App';
 import {createTheme, ThemeProvider} from "@mui/material";
 import "./App.scss";
 import {useEffect} from "react";
-import {AppJoinGroup, AppRecommend, GetSlidesSheet, SaveSlidesSheet, SendSlidesSheet} from "./api/api.ts";
+import {
+  AppAddToHomeScreen,
+  AppAddToHomeScreenInfo,
+  AppJoinGroup,
+  AppRecommend,
+  GetSlidesSheet,
+  SaveSlidesSheet,
+  SendSlidesSheet
+} from "./api/api.ts";
 
 declare global {
   interface Date {
@@ -31,7 +39,13 @@ export const AppConfig = () => {
             if (data.result) SaveSlidesSheet(data.action === "confirm")
           })
           .catch(console.error);
-        else vk_is_recommended == 1 ? AppJoinGroup() : AppRecommend()
+        else vk_is_recommended == 1 ? (
+          AppAddToHomeScreenInfo()
+            .then((status) => {
+              if (status) AppAddToHomeScreen()
+              else AppJoinGroup()
+            })
+        ) : AppRecommend()
       })
       .catch(() => SendSlidesSheet()
         .then((data) => {

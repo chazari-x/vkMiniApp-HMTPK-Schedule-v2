@@ -284,3 +284,15 @@ export function AppJoinGroup() {
     })
   }, 5000)
 }
+
+export async function AppAddToHomeScreenInfo() {
+  const response = await bridge.send('VKWebAppAddToHomeScreenInfo')
+
+  return !response.is_added_to_home_screen && response.is_feature_supported
+}
+
+export function AppAddToHomeScreen() {
+  setTimeout(() => {
+    bridge.send('VKWebAppAddToHomeScreen')
+  }, 5000)
+}
