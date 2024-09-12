@@ -3,7 +3,7 @@ import React, {FC, useEffect, useState} from "react";
 import {Icon16CancelCircleOutline, Icon24ExternalLinkOutline} from "@vkontakte/icons";
 import config from "../etc/config.json";
 import {CloseApp, DeleteSlidesSheet, DeleteUserSettings, GetGroups, GetTeachers, SaveUserSettings} from "../api/api.ts";
-import {Option, UserSettings} from "../types.ts";
+import {Option, Subgroup, UserSettings} from "../types.ts";
 import Loader from "../components/Loader.tsx";
 import {Alert} from "@mui/material";
 import {SetupResizeObserver} from "../utils/utils.tsx";
@@ -22,13 +22,19 @@ const Settings: FC<{
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
 
-  const [tempUserSettings, setTempUserSettings] = useState(userSettings)
-
   const saveUserSettings = () => {
-    if (tempUserSettings == undefined || popout != null) return
+    if (!group && !teacher || popout != null) return
     setPopout(<Loader/>)
-    setUserSettings(tempUserSettings)
-    SaveUserSettings(tempUserSettings)
+    setUserSettings({
+      group: group ?? "",
+      teacher: teacher ?? "",
+      subgroup: subgroup ?? "1 и 2",
+    })
+    SaveUserSettings({
+      group: group ?? "",
+      teacher: teacher ?? "",
+      subgroup: subgroup ?? "1 и 2",
+    })
       .then(console.log)
       .catch(console.error)
       .finally(() => {
@@ -42,10 +48,10 @@ const Settings: FC<{
     setPopout(<Loader/>)
     DeleteUserSettings()
       .then(() => {
-       DeleteSlidesSheet()
-         .then(() => CloseApp())
-         .catch(console.error)
-         .finally(() => setPopout(null))
+        DeleteSlidesSheet()
+          .then(() => CloseApp())
+          .catch(console.error)
+          .finally(() => setPopout(null))
       })
       .catch(console.error)
   }
@@ -59,11 +65,11 @@ const Settings: FC<{
       .finally(() => setPopout(null))
   }
 
-  const changeGroup = (e: React.ChangeEvent<HTMLSelectElement>) => setTempUserSettings({
-    ...tempUserSettings,
-    teacher: "",
-    group: e.target.value,
-  } as UserSettings)
+  const [group, setGroup] = useState(userSettings?.group)
+  const changeGroup = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTeacher("")
+    setGroup(e.target.value)
+  }
 
   const [teacherOptions, setTeacherOptions] = useState<Option[] | undefined>()
   const updateTeachers = () => {
@@ -74,11 +80,11 @@ const Settings: FC<{
       .finally(() => setPopout(null))
   }
 
-  const changeTeacher = (e: React.ChangeEvent<HTMLSelectElement>) => setTempUserSettings({
-    ...tempUserSettings,
-    teacher: e.target.value,
-    group: "",
-  } as UserSettings)
+  const [teacher, setTeacher] = useState(userSettings?.teacher)
+  const changeTeacher = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGroup("")
+    setTeacher(e.target.value)
+  }
 
   const [subgroups,] = useState<Option[]>([
     {'label': '1 подгруппа', 'value': '1'},
@@ -86,29 +92,28 @@ const Settings: FC<{
     {'label': '1 и 2 подгруппы', 'value': '1 и 2'},
   ])
 
-  const changeSubgroup = (e: React.ChangeEvent<HTMLSelectElement>) => setTempUserSettings({
-    ...tempUserSettings,
-    subgroup: e.target.value,
-  } as UserSettings)
+  const [subgroup, setSubgroup] = useState(userSettings?.subgroup)
+  const changeSubgroup = (e: React.ChangeEvent<HTMLSelectElement>) => setSubgroup(e.target.value as Subgroup)
 
   useEffect(() => {
-    if (tempUserSettings) {
-      if (tempUserSettings.group != "" && (!groupOptions || groupOptions.length == 0)) {
-        updateGroups()
-      } else if (tempUserSettings.teacher != "" && (!teacherOptions || teacherOptions.length == 0)) {
-        updateTeachers()
-      }
-    }
-  }, [JSON.stringify(tempUserSettings)]);
+    if (!!group && (!groupOptions || groupOptions.length == 0)) updateGroups()
+    else if (!!teacher && (!teacherOptions || teacherOptions.length == 0)) updateTeachers()
+  }, [group, teacher]);
 
   const [type, setType] = useState<string | undefined>()
   useEffect(() => {
-    if (tempUserSettings) {
-      setType(tempUserSettings.group != "" ? config.texts.Group : config.texts.Teacher)
+    if (userSettings) setType(userSettings.group != "" ? config.texts.Group : config.texts.Teacher)
+  }, []);
+
+  useEffect(() => {
+    if (!type) return
+    if (type == config.texts.Group) {
+      setTeacher(userSettings?.teacher)
     } else {
-      setType(undefined)
+      setGroup(userSettings?.group)
+      setSubgroup(userSettings?.subgroup)
     }
-  }, [tempUserSettings]);
+  }, [type]);
 
   const changeType = (e: React.ChangeEvent<HTMLSelectElement>) => setType(e.target.value)
 
@@ -123,10 +128,10 @@ const Settings: FC<{
           mode="outline"
           onClick={() => routeNavigator.replace("/")}
           before={<Icon16CancelCircleOutline/>}
-          children={userSettings && tempUserSettings
-          && userSettings.teacher == tempUserSettings.teacher
-          && userSettings.group == tempUserSettings.group
-          && userSettings.subgroup == tempUserSettings.subgroup
+          children={userSettings
+          && userSettings.teacher == teacher
+          && userSettings.group == group
+          && userSettings.subgroup == subgroup
             ? config.buttons.close
             : config.buttons.cancelAndClose
           }
@@ -147,24 +152,26 @@ const Settings: FC<{
 
       {type != undefined && (type == config.texts.Group
           ? <>
-            <FormItem noPadding>
+            <FormItem noPadding htmlFor="group_select">
               <CustomSelect
+                id="group_select"
                 placeholder={config.texts.SelectGroup}
                 searchable
+                allowClearButton
                 options={groupOptions ?? []}
                 onChange={changeGroup}
-                value={tempUserSettings?.group}
+                value={group}
                 onOpen={groupOptions && groupOptions.length != 0 ? undefined : updateGroups}
                 fetching={popout != null}
               />
             </FormItem>
             <FormItem noPadding>
               <CustomSelect
-                disabled={!tempUserSettings || tempUserSettings.group == ""}
+                disabled={!group}
                 placeholder={config.texts.SelectSubgroup}
                 options={subgroups}
                 onChange={changeSubgroup}
-                value={tempUserSettings ? tempUserSettings.subgroup : "1 и 2"}
+                value={subgroup ?? "1 и 2"}
               />
             </FormItem>
           </>
@@ -172,9 +179,10 @@ const Settings: FC<{
             <CustomSelect
               placeholder={config.texts.SelectTeacher}
               searchable
+              allowClearButton
               options={teacherOptions ?? []}
               onChange={changeTeacher}
-              value={tempUserSettings?.teacher}
+              value={teacher}
               onOpen={teacherOptions && teacherOptions.length != 0 ? undefined : updateTeachers}
               fetching={popout != null}
             />
@@ -197,9 +205,8 @@ const Settings: FC<{
         </div>
       </Alert>
 
-      {(tempUserSettings == undefined
-        || type == config.texts.Group && tempUserSettings.group == ""
-        || type == config.texts.Teacher && tempUserSettings.teacher == "") && <Alert
+      {(type == config.texts.Group && !group
+        || type == config.texts.Teacher && !teacher) && <Alert
         variant="outlined"
         severity="warning"
         style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
@@ -212,7 +219,7 @@ const Settings: FC<{
         mode='outline'
         stretched
         onClick={saveUserSettings}
-        disabled={JSON.stringify(tempUserSettings) == JSON.stringify(userSettings) || tempUserSettings == undefined || (tempUserSettings.group == "" && tempUserSettings.teacher == "")}
+        disabled={(userSettings && userSettings.group == group && userSettings.teacher == teacher && userSettings.subgroup == subgroup) || (!group && !teacher)}
         children={config.buttons.save}
       />
 
