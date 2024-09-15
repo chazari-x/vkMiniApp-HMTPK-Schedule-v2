@@ -14,7 +14,6 @@ import CheckScheduleButton from "../components/CheckScheduleButton.tsx";
 import ShareButton from "../components/ShareButton.tsx";
 import config from "../etc/config.json";
 import NewAlert from "../components/Alert.tsx";
-import Loader from "../components/Loader.tsx";
 
 const MySchedule: FC<{
   id: string
@@ -122,7 +121,7 @@ const MySchedule: FC<{
       {panelHeader}
       <PullToRefresh onRefresh={onRefresh} isFetching={popout != null || fetching}>
         <div id="my_schedule_resize">
-          {selectedDate != undefined ? <div>
+          {selectedDate != undefined && <div>
             <div className="hmtpk-popover">
               <Popover
                 trigger="click"
@@ -182,7 +181,7 @@ const MySchedule: FC<{
                                  schedule={window.schedule[`${userSettings.teacher + userSettings.group}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule}/>
 
             <ShareButton title={title} link={link} comment={comment}/>
-          </div> : <Loader/>}
+          </div>}
         </div>
       </PullToRefresh>
     </Panel>

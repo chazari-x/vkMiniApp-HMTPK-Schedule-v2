@@ -9,7 +9,21 @@
   gap: var(--vkui--size_base_padding_horizontal--regular);
 }
 
-#group_schedule_resize {
+#group_schedule_resize > div {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_horizontal--regular);
+}
+
+#teacher_schedule_resize > div {
+  padding: var(--vkui--size_base_padding_horizontal--regular);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vkui--size_base_padding_horizontal--regular);
+}
+
+#my_schedule_resize > div {
   padding: var(--vkui--size_base_padding_horizontal--regular);
   display: flex;
   flex-direction: column;
@@ -37,13 +51,6 @@
 }
 
 #teacher_selector_resize {
-  padding: var(--vkui--size_base_padding_horizontal--regular);
-  display: flex;
-  flex-direction: column;
-  gap: var(--vkui--size_base_padding_horizontal--regular);
-}
-
-#teacher_schedule_resize {
   padding: var(--vkui--size_base_padding_horizontal--regular);
   display: flex;
   flex-direction: column;
@@ -144,13 +151,6 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-}
-
-#my_schedule_resize {
-  padding: var(--vkui--size_base_padding_horizontal--regular);
-  display: flex;
-  flex-direction: column;
-  gap: var(--vkui--size_base_padding_horizontal--regular);
 }
 
 .hmtpk-lessons {

@@ -128,7 +128,7 @@ const GroupSchedule: FC<{
     {panelHeader}
     <PullToRefresh onRefresh={onRefresh} isFetching={popout != null || fetching}>
       <div id="group_schedule_resize">
-        {selectedDate != undefined ? <div>
+        {selectedDate != undefined && <div>
           <div className="hmtpk-popover">
             <Popover
               disabled={!option || option.label == "" || option.value == ""}
@@ -188,7 +188,7 @@ const GroupSchedule: FC<{
                                schedule={option ? window.schedule[`${option.value}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule : undefined}/>
 
           <ShareButton title={title} link={link} comment={comment}/>
-        </div> : <Loader/>}
+        </div>}
       </div>
     </PullToRefresh>
   </Panel>

@@ -127,7 +127,7 @@ const TeacherSchedule: FC<{
     {panelHeader}
     <PullToRefresh onRefresh={onRefresh} isFetching={popout != null || fetching}>
       <div id="teacher_schedule_resize">
-        {selectedDate != undefined ? <div>
+        {selectedDate != undefined && <div>
           <div className="hmtpk-popover">
             <Popover
               disabled={!option || option.label == "" || option.value == ""}
@@ -187,7 +187,7 @@ const TeacherSchedule: FC<{
                                schedule={option ? window.schedule[`${option.value}-${year}-${week}`]?.schedule : undefined}/>
 
           <ShareButton title={title} link={link} comment={comment}/>
-        </div> : <Loader/>}
+        </div>}
       </div>
     </PullToRefresh>
   </Panel>
