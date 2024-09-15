@@ -72,6 +72,9 @@ export const App = () => {
 
   const {panel} = useActiveVkuiLocation();
 
+  const [maxDate,] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
+  const [minDate,] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
+
   useEffect(() => {
     if (fetched && (!userSettings || (!userSettings.teacher && (!userSettings.group || !userSettings.groupLabel))) && panel == DEFAULT_VIEW_PANELS.MySchedule) {
       setHeader(config.pages.Settings)
@@ -124,6 +127,8 @@ export const App = () => {
             setPopout={setPopout}
             popout={popout}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+            minDate={minDate}
+            maxDate={maxDate}
           />
           <Settings
             id={DEFAULT_VIEW_PANELS.Settings}
@@ -144,6 +149,8 @@ export const App = () => {
             setOption={setGroupOption}
             subgroup={subgroup}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+            minDate={minDate}
+            maxDate={maxDate}
           />
           <GroupSelector
             id={DEFAULT_VIEW_PANELS.GroupSelector}
@@ -161,6 +168,8 @@ export const App = () => {
             option={teacherOption}
             setOption={setTeacherOption}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+            minDate={minDate}
+            maxDate={maxDate}
           />
           <TeacherSelector
             id={DEFAULT_VIEW_PANELS.TeacherSelector}

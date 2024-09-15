@@ -18,10 +18,15 @@ import {
   SaveSlidesSheet,
   SendSlidesSheet
 } from "./api/api.ts";
+import {NewSchedule} from "./types.ts";
 
 declare global {
   interface Date {
     getWeek(): number;
+  }
+
+  interface Window {
+    schedule: Record<string, NewSchedule | undefined>
   }
 }
 
@@ -32,6 +37,8 @@ export const AppConfig = () => {
   const {vk_platform, vk_is_recommended} = parseURLSearchParamsForGetLaunchParams(window.location.search);
 
   useEffect(() => {
+    window.schedule = {}
+
     GetSlidesSheet()
       .then((showed) => {
         if (!showed) SendSlidesSheet()

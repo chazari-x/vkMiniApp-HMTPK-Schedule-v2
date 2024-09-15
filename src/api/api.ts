@@ -1,7 +1,7 @@
 import config from "../etc/config.json";
 import {Buffer} from 'buffer/';
 import bridge from "@vkontakte/vk-bridge";
-import {Announces, Option, Schedule, UserSettings} from "../types.ts";
+import {Announces, NewSchedule, Option, Schedule, UserSettings} from "../types.ts";
 import {format} from "@vkontakte/vkui/dist/lib/date";
 import base64 from "../etc/base64.json";
 
@@ -85,17 +85,11 @@ export async function GetGroupSchedule(date: Date, group: string) {
   {
     const data = window.localStorage.getItem(`group-schedule-${group}-${week}-${year}`);
     if (data) {
-      const parsed = JSON.parse(data) as {
-        timestamp: number;
-        schedule: Schedule[];
-      }
+      const parsed = JSON.parse(data) as NewSchedule;
 
       // Если расписание не устарело
       if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
-        return {
-          schedule: parsed.schedule,
-          date: date
-        };
+        return parsed;
       }
     }
   }
@@ -106,10 +100,7 @@ export async function GetGroupSchedule(date: Date, group: string) {
   const timestamp = Date.now();
   window.localStorage.setItem(`group-schedule-${group}-${week}-${year}`, JSON.stringify({timestamp, schedule}));
 
-  return {
-    schedule: schedule,
-    date: date
-  };
+  return {timestamp, schedule};
 }
 
 // Получить расписание преподавателя
@@ -120,17 +111,11 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
   {
     const data = window.localStorage.getItem(`teacher-schedule-${teacher}-${week}-${year}`);
     if (data) {
-      const parsed = JSON.parse(data) as {
-        timestamp: number;
-        schedule: Schedule[];
-      };
+      const parsed = JSON.parse(data) as NewSchedule;
 
       // Если расписание не устарело
       if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
-        return {
-          schedule: parsed.schedule,
-          date: date
-        };
+        return parsed;
       }
     }
   }
@@ -141,10 +126,7 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
   const timestamp = Date.now();
   window.localStorage.setItem(`teacher-schedule-${teacher}-${week}-${year}`, JSON.stringify({timestamp, schedule}));
 
-  return {
-    schedule: schedule,
-    date: date
-  };
+  return {timestamp, schedule};
 }
 
 // Получить группы

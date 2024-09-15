@@ -3,15 +3,14 @@ import config from "../etc/config.json";
 import {Link} from "@vkontakte/vkui";
 import {Icon24ExternalLinkOutline} from "@vkontakte/icons";
 import NewAlert from "./Alert.tsx";
-import {MergedLesson, Schedule} from "../types.ts";
+import {Schedule} from "../types.ts";
 
 const SeptemberAlert: FC<{
   selectedDate: Date
   schedule: Schedule[] | undefined
   dayNum: number | undefined
-  mergedLessons: MergedLesson[] | undefined
-}> = ({selectedDate, schedule, dayNum, mergedLessons}) => {
-  return selectedDate.getMonth() == 8 && schedule && dayNum != undefined && !schedule[dayNum].lesson?.length && mergedLessons != undefined
+}> = ({selectedDate, schedule, dayNum}) => {
+  return selectedDate.getMonth() == 8 && schedule && dayNum != undefined && !schedule[dayNum].lesson?.length
     ? <NewAlert
       severity="warning"
       children={<>

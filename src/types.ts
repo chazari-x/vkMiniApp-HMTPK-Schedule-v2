@@ -2,11 +2,10 @@ export interface Schedule {
   date: string;
   lesson: Lesson[] | null;
   href: string;
-  timestamp: number | undefined;
 }
 
 export interface NewSchedule {
-  date: Date;
+  timestamp: number;
   schedule: Schedule[];
 }
 
