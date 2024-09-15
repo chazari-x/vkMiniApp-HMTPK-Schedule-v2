@@ -5,6 +5,11 @@ export interface Schedule {
   timestamp: number | undefined;
 }
 
+export interface NewSchedule {
+  date: Date;
+  schedule: Schedule[];
+}
+
 export interface Lesson {
   num: string;
   time: string;

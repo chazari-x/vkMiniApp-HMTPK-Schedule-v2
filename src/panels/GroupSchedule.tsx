@@ -3,10 +3,10 @@ import React, {FC, useEffect, useState} from "react";
 import {CapitalizeFirstLetter, MergeLessons, SetupResizeObserver} from "../utils/utils";
 import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import config from "../etc/config.json"
-import {MergedLesson, Option, Schedule as ScheduleType} from "../types.ts";
+import {MergedLesson, NewSchedule, Option} from "../types.ts";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import Loader from "../components/Loader.tsx";
-import {GetGroups, GetGroupSchedule} from "../api/api.ts";
+import {GetGroups, GetTeacherSchedule} from "../api/api.ts";
 import Schedule from "../components/Schedule.tsx";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
 import Scrollable from "../components/Scrollable.tsx";
@@ -39,6 +39,14 @@ const GroupSchedule: FC<{
   const {panel} = useActiveVkuiLocation();
   const [dateParams, setDateParams] = useState<string>("")
   useEffect(() => {
+    update()
+  }, [params, panel, option?.label, option?.value])
+
+  useEffect(() => {
+    update()
+  }, []);
+
+  const update = () => {
     if (panel !== id) return;
 
     const value = params.get('value') ?? option?.value ?? ""
@@ -96,7 +104,7 @@ const GroupSchedule: FC<{
     setComment(`Посмотри расписание группы на ${selectedDate.toLocaleDateString('ru',
       {day: '2-digit', month: 'long', year: 'numeric'}
     )} в приложении "ХМТПК Расписание"`)
-  }, [params, panel])
+  }
 
   const change = (date: Date | undefined) => {
     if (date == undefined || option == undefined) return
@@ -108,20 +116,22 @@ const GroupSchedule: FC<{
   const [link, setLink] = useState<string | undefined>()
   const [title,] = useState<string>(config.texts.GroupSchedule)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
-  const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
+  const [schedule, setSchedule] = useState<NewSchedule | undefined>()
   const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
-    if (fetching || option == undefined || option.value == "") return
-    setErrorMessage(undefined)
-    setSchedule(undefined)
-    setFetching(true)
-    GetGroupSchedule(new Date(selectedDate), option.value)
-      .then(changeSchedule)
+    if (fetching || !option || !option.value || !week || !year) return
+
+    setErrorMessage(undefined);
+    setSchedule(undefined);
+    setFetching(true);
+
+    GetTeacherSchedule(new Date(selectedDate), option.value)
+      .then(setSchedule)
       .catch((err: Error) => {
-        setErrorMessage(err.message);
-        setFetching(false);
+        setErrorMessage(err.message)
+        setFetching(false)
       })
-  }
+  };
 
   const [comment, setComment] = useState(`Посмотри расписание группы в приложении "ХМТПК Расписание"`)
   const changeComment = (group: string) => {
@@ -133,19 +143,14 @@ const GroupSchedule: FC<{
     if (option != undefined && option.value != "") changeComment(option.label)
   }, [option?.label]);
 
-  const changeSchedule = ({schedule, date}: { schedule: ScheduleType[], date: Date }) => {
-    if (date.getWeek() == week && date.getFullYear() == year) {
-      setSchedule(schedule);
-      setFetching(false);
-    }
-  }
-
-  useEffect(() => onRefresh(), [week, option, option?.value, year]);
+  useEffect(() => onRefresh(), [week, option?.value, option?.label, year]);
 
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {
-    if (dayNum != undefined && schedule && schedule[dayNum] && schedule[dayNum].lesson != null)
-      setMergedLessons(MergeLessons(schedule[dayNum].lesson));
+    if (!(schedule && schedule.date.getWeek() == week && schedule.date.getFullYear() == year)) return
+    setFetching(false);
+    if (dayNum != undefined && schedule.schedule[dayNum])
+      setMergedLessons(MergeLessons(schedule.schedule[dayNum].lesson ?? []));
   }, [dayNum, schedule]);
 
   const [calendar, setCalendar] = React.useState(false)
@@ -204,13 +209,14 @@ const GroupSchedule: FC<{
             children={config.errors.GroupIsNull}
           />
           : popout == null && !fetching
-            ? <Schedule errorMessage={errorMessage} schedule={schedule} dayNum={dayNum} subgroup={subgroupValue}
-                        mergedLessons={mergedLessons}/>
+            ? <Schedule errorMessage={errorMessage} schedule={schedule?.schedule} dayNum={dayNum} subgroup={subgroupValue}
+                      mergedLessons={mergedLessons}/>
             : <Placeholder><Spinner size="small"/></Placeholder>}
 
-        <SeptemberAlert selectedDate={selectedDate} schedule={schedule} dayNum={dayNum}/>
+        <SeptemberAlert selectedDate={selectedDate} schedule={schedule?.schedule} dayNum={dayNum}
+                        mergedLessons={mergedLessons}/>
 
-        <CheckScheduleButton dayNum={dayNum} schedule={schedule}/>
+        <CheckScheduleButton dayNum={dayNum} schedule={schedule?.schedule}/>
 
         <ShareButton title={title} link={link} comment={comment}/>
       </div>}
