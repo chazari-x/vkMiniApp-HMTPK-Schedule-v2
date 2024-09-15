@@ -17,6 +17,7 @@ import Menu from "./components/Menu.tsx";
 import config from "./etc/config.json";
 import College from "./panels/College.tsx";
 import Abitur from "./panels/Abitur.tsx";
+import Announces from "./panels/Announces.tsx";
 
 export const App = () => {
   const {panel: activePanel = DEFAULT_VIEW_PANELS.MySchedule} = useActiveVkuiLocation();
@@ -26,7 +27,7 @@ export const App = () => {
   const [popout, setPopout] = useState<ReactNode | null>(null);
 
   useEffect(() => {
-    if (fetched && !userSettings && activePanel != DEFAULT_VIEW_PANELS.Settings) routeNavigator.push(`/${DEFAULT_VIEW_PANELS.Settings}`)
+    if (fetched && (!userSettings || (!userSettings.teacher && (!userSettings.group || !userSettings.groupLabel))) && activePanel == DEFAULT_VIEW_PANELS.MySchedule) routeNavigator.push(`/${DEFAULT_VIEW_PANELS.Settings}`)
   }, [activePanel]);
 
   const [groupOption, setGroupOption] = useState<Option | undefined>()
@@ -37,10 +38,14 @@ export const App = () => {
   useEffect(() => {
     setPopout(<Loader/>)
     GetUserSettings()
-      .then(setUserSettings)
+      .then((userSettings) => {
+        setUserSettings(userSettings)
+        if ((!userSettings || (!userSettings.teacher && (!userSettings.group || !userSettings.groupLabel))) && activePanel == DEFAULT_VIEW_PANELS.MySchedule)
+          routeNavigator.push('/settings')
+      })
       .catch(err => {
         console.error(err)
-        routeNavigator.push('/settings')
+        if (activePanel == DEFAULT_VIEW_PANELS.MySchedule) routeNavigator.push('/settings')
         setUserSettings({
           teacher: "",
           group: "",
@@ -68,6 +73,12 @@ export const App = () => {
   const {panel} = useActiveVkuiLocation();
 
   useEffect(() => {
+    if (fetched && (!userSettings || (!userSettings.teacher && (!userSettings.group || !userSettings.groupLabel))) && panel == DEFAULT_VIEW_PANELS.MySchedule) {
+      setHeader(config.pages.Settings)
+      setMode(panel)
+      routeNavigator.push(`/${DEFAULT_VIEW_PANELS.Settings}`)
+    }
+
     if (panel == undefined || ([
       DEFAULT_VIEW_PANELS.GroupSelector,
       DEFAULT_VIEW_PANELS.TeacherSelector,
@@ -122,7 +133,7 @@ export const App = () => {
             setUserSettings={setUserSettings}
             panelHeader={<Header
               header={header} toggleContext={toggleContext}
-              disabled={userSettings.teacher == "" && userSettings.group == ""}
+              // disabled={!userSettings.teacher && !userSettings.group}
             />}
           />
           <GroupSchedule
@@ -168,6 +179,12 @@ export const App = () => {
           />
           <Abitur
             id={DEFAULT_VIEW_PANELS.Abitur}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+          />
+          <Announces
+            id={DEFAULT_VIEW_PANELS.Announce}
+            popout={popout}
+            setPopout={setPopout}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
         </Epic>}

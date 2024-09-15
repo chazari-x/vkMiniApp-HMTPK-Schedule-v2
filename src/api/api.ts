@@ -1,7 +1,7 @@
 import config from "../etc/config.json";
 import {Buffer} from 'buffer/';
 import bridge from "@vkontakte/vk-bridge";
-import {Option, Schedule, UserSettings} from "../types.ts";
+import {Announces, Option, Schedule, UserSettings} from "../types.ts";
 import {format} from "@vkontakte/vkui/dist/lib/date";
 import base64 from "../etc/base64.json";
 
@@ -38,7 +38,7 @@ async function sendRequest(href: string) {
           if ((await response.json()).message == "hmtpk not working") {
             throw new Error(config.errors.TimeoutExceeded)
           }
-          throw new Error(config.errors.APINotWorking)
+          throw new Error(config.errors.APIError)
         default:
           throw new Error(config.errors.APINotWorking)
       }
@@ -55,6 +55,27 @@ async function sendRequest(href: string) {
   }
 }
 
+// Получить объявления
+export async function GetAnnounces(page: number) {
+  const href = '/announces?page=' + page.toString()
+
+  const announces = window.localStorage.getItem(href)
+  if (announces) {
+    const parsed = JSON.parse(announces) as Announces
+    if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 * 10 > Date.now() && parsed.announces
+      && parsed.announces.length > 0 && !!parsed.announces[0].body && !!parsed.announces[0].title
+      && !!parsed.announces[0].date && !!parsed.announces[0].path && !!parsed.last_page) {
+      return parsed
+    }
+  }
+
+  const data = await sendRequest(href) as Announces
+
+  data.timestamp = Date.now()
+  window.localStorage.setItem(href, JSON.stringify(data))
+
+  return data
+}
 
 // Получить расписание группы
 export async function GetGroupSchedule(date: Date, group: string) {
@@ -70,8 +91,11 @@ export async function GetGroupSchedule(date: Date, group: string) {
       }
 
       // Если расписание не устарело
-      if (parsed.timestamp != undefined && parsed.timestamp + 60000 > Date.now()) {
-        return parsed.schedule;
+      if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
+        return {
+          schedule: parsed.schedule,
+          date: date
+        };
       }
     }
   }
@@ -82,7 +106,10 @@ export async function GetGroupSchedule(date: Date, group: string) {
   const timestamp = Date.now();
   window.localStorage.setItem(`group-schedule-${group}-${week}-${year}`, JSON.stringify({timestamp, schedule}));
 
-  return schedule;
+  return {
+    schedule: schedule,
+    date: date
+  };
 }
 
 // Получить расписание преподавателя
@@ -99,8 +126,11 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
       };
 
       // Если расписание не устарело
-      if (parsed.timestamp != undefined && parsed.timestamp + 60000 > Date.now()) {
-        return parsed.schedule;
+      if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
+        return {
+          schedule: parsed.schedule,
+          date: date
+        };
       }
     }
   }
@@ -111,7 +141,10 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
   const timestamp = Date.now();
   window.localStorage.setItem(`teacher-schedule-${teacher}-${week}-${year}`, JSON.stringify({timestamp, schedule}));
 
-  return schedule;
+  return {
+    schedule: schedule,
+    date: date
+  };
 }
 
 // Получить группы
@@ -252,7 +285,14 @@ export async function GetUserSettings() {
     keys: ['schedule']
   })
 
-  return JSON.parse(response.keys[0].value) as UserSettings
+  const userSettings = JSON.parse(response.keys[0].value) as UserSettings
+
+  if (!!userSettings.group && !userSettings.groupLabel) {
+    userSettings.group = ""
+    userSettings.teacher = ""
+  }
+
+  return userSettings
 }
 
 // Удалить пользовательские настройки

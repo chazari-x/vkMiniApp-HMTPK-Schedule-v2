@@ -9,11 +9,11 @@ import Loader from "../components/Loader.tsx";
 import {GetTeachers, GetTeacherSchedule} from "../api/api.ts";
 import Schedule from "../components/Schedule.tsx";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
-import {Alert} from "@mui/material";
 import Scrollable from "../components/Scrollable.tsx";
 import SeptemberAlert from "../components/SeptemberAlert.tsx";
 import CheckScheduleButton from "../components/CheckScheduleButton.tsx";
 import ShareButton from "../components/ShareButton.tsx";
+import NewAlert from "../components/Alert.tsx";
 
 const TeacherSchedule: FC<{
   id: string
@@ -87,6 +87,10 @@ const TeacherSchedule: FC<{
     setWeek(date.getWeek())
     setYear(date.getFullYear())
     setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
+    setFetching(false)
+    setComment(`Посмотри расписание преподавателя на ${selectedDate.toLocaleDateString('ru',
+      {day: '2-digit', month: 'long', year: 'numeric'}
+    )} в приложении "ХМТПК Расписание"`)
   }, [params, panel])
 
   const change = (date: Date | undefined) => {
@@ -101,17 +105,38 @@ const TeacherSchedule: FC<{
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
-    if (popout != null || fetching || option == undefined || option.value == "") return
-    setErrorMessage(undefined)
-    setSchedule(undefined)
-    setFetching(true)
-    GetTeacherSchedule(selectedDate, option.value)
-      .then(setSchedule)
-      .catch((err: Error) => setErrorMessage(err.message))
-      .finally(() => setFetching(false))
+    if (fetching || option === undefined || option.value === "") return;
+
+    setErrorMessage(undefined);
+    setSchedule(undefined);
+    setFetching(true);
+
+    GetTeacherSchedule(new Date(selectedDate), option.value)
+      .then(changeSchedule)
+      .catch((err: Error) => {
+        setErrorMessage(err.message);
+        setFetching(false);
+      })
+  };
+
+  const changeSchedule = ({schedule, date}: { schedule: ScheduleType[], date: Date }) => {
+    if (date.getWeek() == week && date.getFullYear() == year) {
+      setSchedule(schedule);
+      setFetching(false);
+    }
   }
 
-  useEffect(() => onRefresh(), [week, option, option?.label, year]);
+  const [comment, setComment] = useState(`Посмотри расписание преподавателя в приложении "ХМТПК Расписание"`)
+  const changeComment = (teacher: string) => {
+    setComment(`Посмотри расписание преподавателя ${teacher} на ${selectedDate.toLocaleDateString('ru',
+      {day: '2-digit', month: 'long', year: 'numeric'}
+    )} в приложении "ХМТПК Расписание"`)
+  }
+  useEffect(() => {
+    if (option != undefined && option.value != "") changeComment(option.label)
+  }, [option?.label]);
+
+  useEffect(() => onRefresh(), [week, option, option?.value, year]);
 
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {
@@ -170,10 +195,8 @@ const TeacherSchedule: FC<{
                     setSelectedDate={change}/>
 
         {!option || option.value == "" || option.label == ""
-          ? <Alert
-            variant="outlined"
+          ? <NewAlert
             severity="info"
-            style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
             children={config.errors.TeacherIsNull}
           />
           : popout == null && !fetching
@@ -181,11 +204,11 @@ const TeacherSchedule: FC<{
                         mergedLessons={mergedLessons}/>
             : <Placeholder><Spinner size="small"/></Placeholder>}
 
-        <SeptemberAlert selectedDate={selectedDate}/>
+        <SeptemberAlert selectedDate={selectedDate} schedule={schedule} dayNum={dayNum}/>
 
         <CheckScheduleButton dayNum={dayNum} schedule={schedule}/>
 
-        <ShareButton title={title} link={link}/>
+        <ShareButton title={title} link={link} comment={comment}/>
       </div>}
     </PullToRefresh>
   </Panel>

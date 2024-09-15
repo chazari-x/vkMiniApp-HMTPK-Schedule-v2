@@ -1,6 +1,6 @@
 import React, {FC} from "react";
 import {Drawer} from "@mui/material";
-import {Footer, Image, SimpleCell, Subhead, Card} from "@vkontakte/vkui";
+import {Card, Footer, Image, SimpleCell, Subhead} from "@vkontakte/vkui";
 import {
   Icon28BankOutline,
   Icon28CalendarOutline,
@@ -67,18 +67,20 @@ const Menu: FC<{
 
       <SimpleCell
         before={<Icon28Notifications
-          fill={/*mode === DEFAULT_VIEW_PANELS.Announce ? "var(--vkui--color_icon_accent)" : */"var(--vkui--color_text_primary)"}/>}
+          fill={mode === DEFAULT_VIEW_PANELS.Announce ? "var(--vkui--color_icon_accent)" : "var(--vkui--color_text_primary)"}/>}
         href={"https://hmtpk.ru/ru/press-center/announce/#textbody"}
         target="_blank"
+        // onClick={select}
         data-mode={DEFAULT_VIEW_PANELS.Announce}
         children={config.pages.Announce}
         disabled={mode === DEFAULT_VIEW_PANELS.Announce}
       />
       <SimpleCell
         before={<Icon28SubscriptionsOutline
-          fill={/*mode === DEFAULT_VIEW_PANELS.Information ? "var(--vkui--color_icon_accent)" : */"var(--vkui--color_text_primary)"}/>}
+          fill={mode === DEFAULT_VIEW_PANELS.Information ? "var(--vkui--color_icon_accent)" : "var(--vkui--color_text_primary)"}/>}
         href={"https://hmtpk.ru/ru/press-center/news/#textbody"}
         target="_blank"
+        // onClick={select}
         data-mode={DEFAULT_VIEW_PANELS.News}
         children={config.pages.News}
         disabled={mode === DEFAULT_VIEW_PANELS.News}

@@ -38,8 +38,22 @@ export interface Option {
 
 export interface UserSettings {
   group: string;
+  groupLabel: string | undefined;
   teacher: string;
   subgroup: Subgroup;
 }
 
 export type Subgroup = '1 и 2' | '1' | '2';
+
+export interface Announces {
+  announces: Announce[];
+  last_page: number;
+  timestamp: number | undefined;
+}
+
+export interface Announce {
+  path: string;
+  date: string;
+  title: string;
+  body: string;
+}

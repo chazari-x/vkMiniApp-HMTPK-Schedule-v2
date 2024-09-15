@@ -70,6 +70,7 @@ const MySchedule: FC<{
     setDayNum(dayNum)
     setWeek(date.getWeek())
     setYear(date.getFullYear())
+    setFetching(false)
   }, [params, panel])
 
   const change = (date: Date | undefined) => {
@@ -90,26 +91,45 @@ const MySchedule: FC<{
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
-    if (popout != null || fetching || userSettings.group == "" && userSettings.teacher == "" || week == undefined) return
+    if (fetching || userSettings.group == "" && userSettings.teacher == "" || week == undefined) return
     setErrorMessage(undefined)
     if (userSettings.group != "") {
       setSchedule(undefined)
       setTitle(config.texts.GroupSchedule)
+      setComment(`Посмотри расписание группы ${userSettings.groupLabel} на ${selectedDate.toLocaleDateString('ru',
+        {day: '2-digit', month: 'long', year: 'numeric'}
+      )} в приложении "ХМТПК Расписание"`)
       setFetching(true)
-      GetGroupSchedule(selectedDate, userSettings.group)
-        .then(setSchedule)
-        .catch((err: Error) => setErrorMessage(err.message))
-        .finally(() => setFetching(false))
+      GetGroupSchedule(new Date(selectedDate), userSettings.group)
+        .then(changeSchedule)
+        .catch((err: Error) => {
+          setErrorMessage(err.message);
+          setFetching(false);
+        })
     } else if (userSettings.teacher != "") {
       setSchedule(undefined)
       setTitle(config.texts.TeacherSchedule)
+      setComment(`Посмотри расписание преподавателя ${userSettings.teacher} на ${selectedDate.toLocaleDateString('ru',
+        {day: '2-digit', month: 'long', year: 'numeric'}
+      )} в приложении "ХМТПК Расписание"`)
       setFetching(true)
-      GetTeacherSchedule(selectedDate, userSettings.teacher)
-        .then(setSchedule)
-        .catch((err: Error) => setErrorMessage(err.message))
-        .finally(() => setFetching(false))
+      GetTeacherSchedule(new Date(selectedDate), userSettings.teacher)
+        .then(changeSchedule)
+        .catch((err: Error) => {
+          setErrorMessage(err.message);
+          setFetching(false);
+        })
     }
   }
+
+  const changeSchedule = ({schedule, date}: {schedule: ScheduleType[], date: Date}) => {
+    if (date.getWeek() == week && date.getFullYear() == year) {
+      setSchedule(schedule);
+      setFetching(false);
+    }
+  }
+
+  const [comment, setComment] = useState("Посмотри расписание преподавателя в приложении \"ХМТПК Расписание\"")
 
   useEffect(() => onRefresh(), [week, year]);
 
@@ -177,11 +197,11 @@ const MySchedule: FC<{
                         dayNum={dayNum} subgroup={userSettings.subgroup}/>
             : <Placeholder><Spinner size="small"/></Placeholder>}
 
-          <SeptemberAlert selectedDate={selectedDate}/>
+          <SeptemberAlert selectedDate={selectedDate} schedule={schedule} dayNum={dayNum}/>
 
           <CheckScheduleButton dayNum={dayNum} schedule={schedule}/>
 
-          <ShareButton title={title} link={link}/>
+          <ShareButton title={title} link={link} comment={comment}/>
         </div>}
       </PullToRefresh>
     </Panel>

@@ -8,6 +8,7 @@ import Loader from "../components/Loader.tsx";
 import {Alert} from "@mui/material";
 import {SetupResizeObserver} from "../utils/utils.tsx";
 import {useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
+import NewAlert from "../components/Alert.tsx";
 
 const Settings: FC<{
   id: string
@@ -27,11 +28,13 @@ const Settings: FC<{
     setPopout(<Loader/>)
     setUserSettings({
       group: group ?? "",
+      groupLabel: groupLabel ?? "",
       teacher: teacher ?? "",
       subgroup: subgroup ?? "1 и 2",
     })
     SaveUserSettings({
       group: group ?? "",
+      groupLabel: groupLabel ?? "",
       teacher: teacher ?? "",
       subgroup: subgroup ?? "1 и 2",
     })
@@ -66,9 +69,11 @@ const Settings: FC<{
   }
 
   const [group, setGroup] = useState(userSettings?.group)
+  const [groupLabel, setGroupLabel] = useState(userSettings?.groupLabel)
   const changeGroup = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTeacher("")
     setGroup(e.target.value)
+    setGroupLabel(groupOptions?.find(option => option.value == e.target.value)?.label)
   }
 
   const [teacherOptions, setTeacherOptions] = useState<Option[] | undefined>()
@@ -189,21 +194,20 @@ const Settings: FC<{
           </FormItem>
       )}
 
-      <Alert
-        variant="outlined"
+      <NewAlert
         severity="info"
-        style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
-      >
-        <div style={{marginBottom: '10px'}}>
-          {config.texts.GroupOrTeacherNotFound} <Link
-          href={config.group.href}
-          target="_blank">{config.group.name}
-          <Icon24ExternalLinkOutline width={16} height={16}/></Link>.
-        </div>
-        <div>
-          {config.texts.Thanks}
-        </div>
-      </Alert>
+        children={<>
+          <div style={{marginBottom: '10px'}}>
+            {config.texts.GroupOrTeacherNotFound} <Link
+            href={config.group.href}
+            target="_blank">{config.group.name}
+            <Icon24ExternalLinkOutline width={16} height={16}/></Link>.
+          </div>
+          <div>
+            {config.texts.Thanks}
+          </div>
+        </>}
+      />
 
       {(type == config.texts.Group && !group
         || type == config.texts.Teacher && !teacher) && <Alert
@@ -233,15 +237,12 @@ const Settings: FC<{
           disabled={userSettings == undefined || (userSettings.group == "" && userSettings.teacher == "")}
           children={config.buttons.clear}
         />
-        <Alert
-          variant="outlined"
+        <NewAlert
           severity="info"
-          style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
-        >
-          <div style={{marginBottom: '10px'}}>
+          children={<div style={{marginBottom: '10px'}}>
             Эта кнопка очищает все данные. Нажмите ее, чтобы увидеть всё как новый пользователь.
-          </div>
-        </Alert>
+          </div>}
+        />
       </>}
     </div>
   </Panel>

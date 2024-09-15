@@ -1,9 +1,9 @@
-import {CardGrid, Placeholder} from "@vkontakte/vkui";
+import {Placeholder, Separator, Spinner} from "@vkontakte/vkui";
 import React, {FC} from "react";
 import {Icon28User, Icon28Users} from "@vkontakte/icons";
-import {Alert} from "@mui/material";
 import {MergedLesson, Schedule as ScheduleType} from "../types.ts";
 import config from "../etc/config.json";
+import NewAlert from "./Alert.tsx";
 
 const Schedule: FC<{
   errorMessage: string | undefined
@@ -11,7 +11,8 @@ const Schedule: FC<{
   dayNum: number | undefined
   subgroup?: string | undefined
   mergedLessons: MergedLesson[] | undefined
-}> = ({errorMessage, mergedLessons, subgroup, schedule, dayNum}) => <div>
+}> = ({errorMessage, mergedLessons, subgroup, schedule, dayNum}) => <div className="hmtpk-lessons"
+                                                                         key={`lessons-${dayNum}`}>
   {errorMessage == undefined && schedule != undefined && dayNum != undefined
     ? mergedLessons != undefined && mergedLessons.length > 0 && schedule[dayNum].lesson != null
       ? mergedLessons.map((mergedLesson, index) => {
@@ -24,57 +25,59 @@ const Schedule: FC<{
           color = 'var(--vkui--color_text_secondary)'
         }
 
-        return <CardGrid
-          key={`lesson-${mergedLesson.num}-num-${index}`}
-          size='m'
-          className="hmtpk-lesson"
-          style={{color: c}}
-        >
-          <div className="hmtpk-lesson-time" style={{color: c}}>
-            {mergedLesson.time.replace('- ', '')}
-          </div>
-          <div className="hmtpk-lesson-block">
-            <div className="hmtpk-lesson-name">{mergedLesson.name}</div>
+        return <>
+          <div key={`lesson-${mergedLesson.num}-num-${index}`} className="hmtpk-lesson" style={{color: c}}>
+            <div className="hmtpk-lesson-time" style={{color: c}} key={`time-${index}`}>
+              {mergedLesson.time.replace('- ', '')}
+            </div>
+            <div className="hmtpk-lesson-block" key={`block-${index}`}>
+              <div className="hmtpk-lesson-name" key={`name-${index}`}>{mergedLesson.name}</div>
 
-            {mergedLesson.subgroups.map((subgroup, subIndex) => (
-              <React.Fragment key={`subgroup-${index}-${subIndex}`}>
-                {subgroup.teacher !== '' && <div className="hmtpk-lesson-teacher">
-                  <Icon28User width={16} height={16} fill={color}/>{`${subgroup.teacher}`}
-                </div>}
+              {mergedLesson.subgroups.map((subgroup, subIndex) => (
+                <React.Fragment key={`subgroup-${index}-${subIndex}`}>
+                  {!!subgroup.teacher && <div className="hmtpk-lesson-teacher" key={`teacher-${index}-${subIndex}`}>
+                    <Icon28User width={16} height={16} fill={color}/>
 
-                {subgroup.group !== '' && <div className="hmtpk-lesson-group">
-                  <div style={{marginRight: '4px'}}>
+                    <span>{subgroup.teacher}</span>
+                  </div>}
+
+                  {!!subgroup.group && <div className="hmtpk-lesson-group" key={`group-${index}-${subIndex}`}>
                     <Icon28Users width={16} height={16} fill={color}/>
-                  </div>
-                  <div>{subgroup.group}</div>
-                  <div style={{color: color}}>
-                    {subgroup.subgroup !== '' && ` / подгр. ${subgroup.subgroup}`}
-                  </div>
-                </div>}
 
-                {subgroup.group === '' && subgroup.subgroup !== "" &&
-                  <div className="hmtpk-lesson-group" style={{color: color}}>
-                    {`подгр. ${subgroup.subgroup}`}
-                  </div>
-                }
+                    <span>{subgroup.group}</span>
 
-                {(subgroup.room !== "" || subgroup.location !== "") &&
-                  <div className="hmtpk-lesson-room" style={{color: color}}>
-                    {`ауд. ${subgroup.room}`}{subgroup.location !== "" && ` / ${subgroup.location}`}
+                    {!!subgroup.subgroup && <span style={{color: color}}>/</span>}
+
+                    {subgroup.subgroup !== '' && <span style={{color: color}}>подгр. {subgroup.subgroup}</span>}
+                  </div>}
+
+                  <div className="hmtpk-lesson-group-room-block" style={{color: color}}>
+                    {subgroup.group === '' && subgroup.subgroup !== "" && <span>подгр. {subgroup.subgroup}</span>}
+
+                    {subgroup.group === '' && subgroup.subgroup !== ""
+                      && (subgroup.room !== "" || subgroup.location !== "") && <span>—</span>}
+
+                    {(subgroup.room !== "" || subgroup.location !== "") && <span>ауд. {subgroup.room}</span>}
+
+                    {!!subgroup.location && <span>/</span>}
+
+                    {!!subgroup.location && <span>{subgroup.location}</span>}
                   </div>
-                }
-              </React.Fragment>
-            ))}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
-        </CardGrid>
+
+          {index !== mergedLessons.length - 1 && <Separator key={`separator-${index}`}/>}
+        </>
       })
-      : <Placeholder children={config.texts.NoLessons}/>
-    : errorMessage != undefined ? <Alert
-    variant="outlined"
-    severity="error"
-    style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
-    children={errorMessage}
-  /> : <Placeholder children={config.texts.NoLessons}/>}
+      : schedule[dayNum].lesson && schedule[dayNum].lesson.length > 0
+        ? <Placeholder><Spinner size="small"/></Placeholder>
+        : <Placeholder children={config.texts.NoLessons} key="no-lessons"/>
+    : errorMessage != undefined ? <NewAlert
+      severity="error"
+      children={errorMessage}
+    /> : <Placeholder children={config.texts.NoLessons} key="no-lessons"/>}
 </div>
 
 export default Schedule;

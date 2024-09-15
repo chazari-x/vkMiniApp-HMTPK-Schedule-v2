@@ -1,11 +1,14 @@
-import React, {FC} from "react";
+import React, {FC, useEffect} from "react";
 import {Cell, Panel} from "@vkontakte/vkui";
 import config from "../etc/config.json";
+import {SetupResizeObserver} from "../utils/utils.tsx";
 
 const College: FC<{
   id: string,
   panelHeader: React.ReactNode
 }> = ({id, panelHeader}) => {
+  useEffect(() => SetupResizeObserver(id+"_resize"), []);
+
   const elements = [
     {
       label: 'Основные сведения',
@@ -55,14 +58,16 @@ const College: FC<{
 
   return <Panel id={id}>
     {panelHeader}
-    {elements.map((element) => <Cell
-      key={element.value}
-      href={`${config.hrefs.college}/${element.value}`}
-      target="_blank"
-      multiline
-      children={element.label}
-      disabled={element.disabled}
-    />)}
+    <div id={id+"_resize"}>
+      {elements.map((element) => <Cell
+        key={element.value}
+        href={`${config.hrefs.college}/${element.value}`}
+        target="_blank"
+        multiline
+        children={element.label}
+        disabled={element.disabled}
+      />)}
+    </div>
   </Panel>
 }
 

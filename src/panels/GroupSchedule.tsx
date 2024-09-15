@@ -9,11 +9,11 @@ import Loader from "../components/Loader.tsx";
 import {GetGroups, GetGroupSchedule} from "../api/api.ts";
 import Schedule from "../components/Schedule.tsx";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
-import {Alert} from "@mui/material";
 import Scrollable from "../components/Scrollable.tsx";
 import SeptemberAlert from "../components/SeptemberAlert.tsx";
 import CheckScheduleButton from "../components/CheckScheduleButton.tsx";
 import ShareButton from "../components/ShareButton.tsx";
+import NewAlert from "../components/Alert.tsx";
 
 const GroupSchedule: FC<{
   id: string
@@ -35,7 +35,6 @@ const GroupSchedule: FC<{
   const [week, setWeek] = useState<number | undefined>()
   const [year, setYear] = useState<number | undefined>()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [link, setLink] = useState<string | undefined>()
   const [subgroupValue, setSubgroupValue] = useState<string>(subgroup)
   const {panel} = useActiveVkuiLocation();
   const [dateParams, setDateParams] = useState<string>("")
@@ -93,6 +92,10 @@ const GroupSchedule: FC<{
     setWeek(date.getWeek())
     setYear(date.getFullYear())
     setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
+    setFetching(false)
+    setComment(`Посмотри расписание группы на ${selectedDate.toLocaleDateString('ru',
+      {day: '2-digit', month: 'long', year: 'numeric'}
+    )} в приложении "ХМТПК Расписание"`)
   }, [params, panel])
 
   const change = (date: Date | undefined) => {
@@ -102,22 +105,42 @@ const GroupSchedule: FC<{
     setCalendar(false)
   }
 
+  const [link, setLink] = useState<string | undefined>()
   const [title,] = useState<string>(config.texts.GroupSchedule)
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [schedule, setSchedule] = useState<ScheduleType[] | undefined>()
   const [fetching, setFetching] = useState(false)
   const onRefresh = () => {
-    if (popout != null || fetching || option == undefined || option.value == "") return
+    if (fetching || option == undefined || option.value == "") return
     setErrorMessage(undefined)
     setSchedule(undefined)
     setFetching(true)
-    GetGroupSchedule(selectedDate, option.value)
-      .then(setSchedule)
-      .catch((err: Error) => setErrorMessage(err.message))
-      .finally(() => setFetching(false))
+    GetGroupSchedule(new Date(selectedDate), option.value)
+      .then(changeSchedule)
+      .catch((err: Error) => {
+        setErrorMessage(err.message);
+        setFetching(false);
+      })
   }
 
-  useEffect(() => onRefresh(), [week, option, option?.label, year]);
+  const [comment, setComment] = useState(`Посмотри расписание группы в приложении "ХМТПК Расписание"`)
+  const changeComment = (group: string) => {
+    setComment(`Посмотри расписание группы ${group} на ${selectedDate.toLocaleDateString('ru',
+      {day: '2-digit', month: 'long', year: 'numeric'}
+    )} в приложении "ХМТПК Расписание"`)
+  }
+  useEffect(() => {
+    if (option != undefined && option.value != "") changeComment(option.label)
+  }, [option?.label]);
+
+  const changeSchedule = ({schedule, date}: { schedule: ScheduleType[], date: Date }) => {
+    if (date.getWeek() == week && date.getFullYear() == year) {
+      setSchedule(schedule);
+      setFetching(false);
+    }
+  }
+
+  useEffect(() => onRefresh(), [week, option, option?.value, year]);
 
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {
@@ -176,10 +199,8 @@ const GroupSchedule: FC<{
                     setSelectedDate={change}/>
 
         {!option || option.value == "" || option.label == ""
-          ? <Alert
-            variant="outlined"
+          ? <NewAlert
             severity="info"
-            style={{borderRadius: "var(--vkui--size_border_radius--regular)"}}
             children={config.errors.GroupIsNull}
           />
           : popout == null && !fetching
@@ -187,11 +208,11 @@ const GroupSchedule: FC<{
                         mergedLessons={mergedLessons}/>
             : <Placeholder><Spinner size="small"/></Placeholder>}
 
-        <SeptemberAlert selectedDate={selectedDate}/>
+        <SeptemberAlert selectedDate={selectedDate} schedule={schedule} dayNum={dayNum}/>
 
         <CheckScheduleButton dayNum={dayNum} schedule={schedule}/>
 
-        <ShareButton title={title} link={link}/>
+        <ShareButton title={title} link={link} comment={comment}/>
       </div>}
     </PullToRefresh>
   </Panel>
