@@ -77,7 +77,7 @@ const Menu: FC<{
       />
       <SimpleCell
         before={<Icon28SubscriptionsOutline
-          fill={mode === DEFAULT_VIEW_PANELS.Information ? "var(--vkui--color_icon_accent)" : "var(--vkui--color_text_primary)"}/>}
+          fill={mode === DEFAULT_VIEW_PANELS.News ? "var(--vkui--color_icon_accent)" : "var(--vkui--color_text_primary)"}/>}
         href={"https://hmtpk.ru/ru/press-center/news/#textbody"}
         target="_blank"
         // onClick={select}
