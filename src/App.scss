@@ -14,6 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--vkui--size_base_padding_horizontal--regular);
+  min-height: calc(600px - var(--vkui--size_base_padding_horizontal--regular) * 2 - var(--vkui_internal--panel_header_height) - 1px);
 }
 
 #teacher_schedule_resize > div {
@@ -21,6 +22,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--vkui--size_base_padding_horizontal--regular);
+  min-height: calc(600px - var(--vkui--size_base_padding_horizontal--regular) * 2 - var(--vkui_internal--panel_header_height) - 1px);
 }
 
 #my_schedule_resize > div {
@@ -28,6 +30,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--vkui--size_base_padding_horizontal--regular);
+  min-height: calc(600px - var(--vkui--size_base_padding_horizontal--regular) * 2 - var(--vkui_internal--panel_header_height) - 1px);
 }
 
 #group_selector_resize {
@@ -151,12 +154,18 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  flex-grow: 0;
 }
 
 .hmtpk-lessons {
   display: flex;
   flex-direction: column;
   gap: var(--vkui--size_base_padding_horizontal--regular);
+  flex: 1 1 100%;
+
+  .vkuiPlaceholder--withPadding {
+    flex: 1;
+  }
 
   .vkuiCardGrid + .vkuiCardGrid {
     margin-top: 0;

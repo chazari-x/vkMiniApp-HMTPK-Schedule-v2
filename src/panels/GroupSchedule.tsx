@@ -170,15 +170,17 @@ const GroupSchedule: FC<{
           <Scrollable disabled={!option || option.label == "" || option.value == ""} selectedDate={selectedDate}
                       setSelectedDate={change}/>
 
-          {!option || option.value == "" || option.label == ""
-            ? <NewAlert severity="info" children={config.errors.GroupIsNull}/>
-            : !errorMessage
-              ? !fetching
-                ? <Schedule
-                  schedule={window.schedule[`${option.value}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule}
-                  dayNum={dayNum} subgroup={subgroup}/>
-                : <Placeholder><Spinner size="small"/></Placeholder>
-              : <NewAlert severity="error" children={errorMessage}/>}
+          <div className="hmtpk-lessons">
+            {!option || option.value == "" || option.label == ""
+              ? <NewAlert severity="info" children={config.errors.GroupIsNull}/>
+              : !errorMessage
+                ? !fetching
+                  ? <Schedule
+                    schedule={window.schedule[`${option.value}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule}
+                    dayNum={dayNum} subgroup={subgroup}/>
+                  : <Placeholder><Spinner size="small"/></Placeholder>
+                : <NewAlert severity="error" children={errorMessage}/>}
+          </div>
 
           <SeptemberAlert selectedDate={selectedDate}
                           schedule={option ? window.schedule[`${option.value}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule : undefined}

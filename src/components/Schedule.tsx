@@ -15,7 +15,7 @@ const Schedule: FC<{
     setMergedLessons(MergeLessons(schedule && dayNum != undefined && schedule[dayNum].lesson ? schedule[dayNum].lesson : []))
   }, [schedule, dayNum]);
 
-  return <div className="hmtpk-lessons" key={`lessons-${dayNum}`}>
+  return <>
     {schedule != undefined && dayNum != undefined
       ? mergedLessons != undefined && mergedLessons.length > 0 && schedule[dayNum].lesson != null
         ? mergedLessons.map((mergedLesson, index) => {
@@ -67,7 +67,7 @@ const Schedule: FC<{
           ? <Placeholder><Spinner size="small"/></Placeholder>
           : <Placeholder children={config.texts.NoLessons} key="no-lessons"/>
       : <Placeholder children={config.texts.NoLessons} key="no-lessons"/>}
-  </div>
+  </>
 }
 
 export default Schedule;

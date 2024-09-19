@@ -35,7 +35,7 @@ async function sendRequest(href: string) {
         case 401:
           throw new Error(config.errors.Token)
         case 500:
-          if ((await response.json()).message == "hmtpk not working") {
+          if ((await response.json()).error == "hmtpk not working") {
             throw new Error(config.errors.TimeoutExceeded)
           }
           throw new Error(config.errors.APIError)

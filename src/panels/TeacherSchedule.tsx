@@ -169,15 +169,17 @@ const TeacherSchedule: FC<{
           <Scrollable disabled={!option || option.label == "" || option.value == ""} selectedDate={selectedDate}
                       setSelectedDate={change}/>
 
-          {!option || option.value == "" || option.label == ""
-            ? <NewAlert severity="info" children={config.errors.TeacherIsNull}/>
-            : !errorMessage
-              ? !fetching
-                ? <Schedule
-                  schedule={window.schedule[`${option.value}-${year}-${week}`]?.schedule}
-                  dayNum={dayNum}/>
-                : <Placeholder><Spinner size="small"/></Placeholder>
-              : <NewAlert severity="error" children={errorMessage}/>}
+          <div className="hmtpk-lessons">
+            {!option || option.value == "" || option.label == ""
+              ? <NewAlert severity="info" children={config.errors.TeacherIsNull}/>
+              : !errorMessage
+                ? !fetching
+                  ? <Schedule
+                    schedule={window.schedule[`${option.value}-${year}-${week}`]?.schedule}
+                    dayNum={dayNum}/>
+                  : <Placeholder><Spinner size="small"/></Placeholder>
+                : <NewAlert severity="error" children={errorMessage}/>}
+          </div>
 
           <SeptemberAlert selectedDate={selectedDate}
                           schedule={option ? window.schedule[`${option.value}-${year}-${week}`]?.schedule : undefined}

@@ -103,13 +103,13 @@ const MySchedule: FC<{
   const changeComment = (date: Date = selectedDate ?? new Date()) => {
     if (userSettings.teacher) {
       setTitle(config.texts.TeacherSchedule)
-      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${userSettings.group}`)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.teacher)}`)
       setComment(`Расписание преподавателя ${userSettings.teacher} на ${date.toLocaleDateString('ru',
         {day: '2-digit', month: 'long', year: 'numeric'}
       )}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`)
     } else if (userSettings.groupLabel) {
       setTitle(config.texts.GroupSchedule)
-      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.teacher)}`)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.group)}`)
       setComment(`Расписание группы ${userSettings.groupLabel} на ${date.toLocaleDateString('ru',
         {day: '2-digit', month: 'long', year: 'numeric'}
       )}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`)
@@ -165,13 +165,15 @@ const MySchedule: FC<{
 
             <Scrollable selectedDate={selectedDate} setSelectedDate={change}/>
 
-            {!errorMessage
-              ? !fetching
-                ? <Schedule
-                  schedule={window.schedule[`${userSettings.teacher + userSettings.group}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule}
-                  dayNum={dayNum} subgroup={userSettings.subgroup}/>
-                : <Placeholder><Spinner size="small"/></Placeholder>
-              : <NewAlert severity="error" children={errorMessage}/>}
+            <div className="hmtpk-lessons">
+              {!errorMessage
+                ? !fetching
+                  ? <Schedule
+                    schedule={window.schedule[`${userSettings.teacher + userSettings.group}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule}
+                    dayNum={dayNum} subgroup={userSettings.subgroup}/>
+                  : <Placeholder><Spinner size="small"/></Placeholder>
+                : <NewAlert severity="error" children={errorMessage}/>}
+            </div>
 
             <SeptemberAlert selectedDate={selectedDate}
                             schedule={window.schedule[`${userSettings.teacher + userSettings.group}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`]?.schedule}
