@@ -5,8 +5,7 @@ import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import config from "../etc/config.json"
 import {Option} from "../types.ts";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
-import Loader from "../components/Loader.tsx";
-import {GetTeachers, GetTeacherSchedule} from "../api/api.ts";
+import {GetTeacherSchedule} from "../api/api.ts";
 import Schedule from "../components/Schedule.tsx";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
 import Scrollable from "../components/Scrollable.tsx";
@@ -24,7 +23,7 @@ const TeacherSchedule: FC<{
   panelHeader: React.ReactNode
   minDate: Date
   maxDate: Date
-}> = ({id, setPopout, popout, option, setOption, panelHeader, minDate, maxDate}) => {
+}> = ({id, popout, option, setOption, panelHeader, minDate, maxDate}) => {
   useEffect(() => SetupResizeObserver("teacher_schedule_resize"), []);
 
   const routeNavigator = useRouteNavigator();
@@ -65,15 +64,7 @@ const TeacherSchedule: FC<{
     const year = params.get('year')!
 
     if ((!option || !option.label || !option.value) && value) {
-      setPopout(<Loader/>)
-      GetTeachers()
-        .then(teachers => {
-          const o = teachers.find(teacher => teacher.value === value)
-          if (o == undefined) setErrorMessage(config.errors.TeacherNotFound)
-          else setOption(o)
-        })
-        .catch(console.error)
-        .finally(() => setPopout(null))
+      setOption({label: value, value: value})
     }
 
     if (day.length === 1) day = `0${day}`

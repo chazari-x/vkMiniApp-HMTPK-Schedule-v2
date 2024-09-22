@@ -5,7 +5,6 @@ import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import config from "../etc/config.json"
 import {Option} from "../types.ts";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
-import Loader from "../components/Loader.tsx";
 import {GetGroups, GetGroupSchedule} from "../api/api.ts";
 import Schedule from "../components/Schedule.tsx";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
@@ -14,6 +13,7 @@ import SeptemberAlert from "../components/SeptemberAlert.tsx";
 import CheckScheduleButton from "../components/CheckScheduleButton.tsx";
 import ShareButton from "../components/ShareButton.tsx";
 import NewAlert from "../components/Alert.tsx";
+import Loader from "../components/Loader.tsx";
 
 const GroupSchedule: FC<{
   id: string
@@ -25,7 +25,7 @@ const GroupSchedule: FC<{
   panelHeader: React.ReactNode
   minDate: Date
   maxDate: Date
-}> = ({id, setPopout, popout, option, setOption, subgroup, panelHeader, minDate, maxDate}) => {
+}> = ({id, popout,setPopout, option, setOption, subgroup, panelHeader, minDate, maxDate}) => {
   useEffect(() => SetupResizeObserver("group_schedule_resize"), []);
 
   const routeNavigator = useRouteNavigator();
@@ -55,9 +55,10 @@ const GroupSchedule: FC<{
     if (panel !== id) return;
 
     const value = params.get('value') ?? option?.value ?? ""
+    const label = params.get('label') ?? option?.label ?? ""
 
     if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`)
+      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}&label=${label}`)
       return
     }
 
@@ -66,15 +67,17 @@ const GroupSchedule: FC<{
     const year = params.get('year')!
 
     if ((!option || !option.label || !option.value) && value) {
-      setPopout(<Loader/>)
-      GetGroups()
-        .then(groups => {
-          const o = groups.find(group => group.value === value)
-          if (o == undefined) setErrorMessage(config.errors.GroupNotFound)
-          else setOption(o)
-        })
-        .catch(console.error)
-        .finally(() => setPopout(null))
+      if (label) setOption({label: label, value: value})
+      else {
+        setPopout(<Loader/>)
+        GetGroups()
+          .then(groups => {
+            const o = groups.find(group => group.value === value)
+            !o ? setErrorMessage(config.errors.GroupNotFound) : setOption(o)
+          })
+          .catch(console.error)
+          .finally(() => setPopout(null))
+      }
     }
 
     if (day.length === 1) day = `0${day}`
@@ -82,7 +85,7 @@ const GroupSchedule: FC<{
     const date = new Date(Date.parse(`${year}-${month}-${day}`))
 
     if (date > maxDate || date <= minDate) {
-      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`)
+      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}&label=${label}`)
       return
     }
 
@@ -100,7 +103,7 @@ const GroupSchedule: FC<{
   const change = (date: Date | undefined) => {
     if (date == undefined || option == undefined) return
     setCalendar(false)
-    routeNavigator.replace(`/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${option.value}`)
+    routeNavigator.replace(`/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${option.value}&label=${option.label}`)
   }
 
   const onRefresh = () => {
@@ -115,7 +118,7 @@ const GroupSchedule: FC<{
 
   const changeComment = (date: Date = selectedDate ?? new Date()) => {
     if (option != undefined && option.value != "") {
-      setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`)
+      setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${option.value}&label=${option.label}`)
       setComment(`Расписание группы ${option.label} на ${date.toLocaleDateString('ru',
         {day: '2-digit', month: 'long', year: 'numeric'})}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`)
     } else {

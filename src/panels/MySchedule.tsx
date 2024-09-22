@@ -109,7 +109,7 @@ const MySchedule: FC<{
       )}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`)
     } else if (userSettings.groupLabel) {
       setTitle(config.texts.GroupSchedule)
-      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.group)}`)
+      setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.GroupSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.group)}&label=${userSettings.groupLabel}`)
       setComment(`Расписание группы ${userSettings.groupLabel} на ${date.toLocaleDateString('ru',
         {day: '2-digit', month: 'long', year: 'numeric'}
       )}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`)
