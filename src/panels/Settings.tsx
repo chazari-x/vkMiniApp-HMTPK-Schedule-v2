@@ -1,5 +1,5 @@
 import {Button, CustomSelect, FormItem, Link, Panel} from "@vkontakte/vkui";
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, HtmlHTMLAttributes, useEffect, useState} from "react";
 import {Icon16CancelCircleOutline, Icon24ExternalLinkOutline} from "@vkontakte/icons";
 import config from "../etc/config.json";
 import {CloseApp, DeleteSlidesSheet, DeleteUserSettings, GetGroups, GetTeachers, SaveUserSettings} from "../api/api.ts";
@@ -10,28 +10,32 @@ import {SetupResizeObserver} from "../utils/utils.tsx";
 import {useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import NewAlert from "../components/Alert.tsx";
 
-const Settings: FC<{
-  id: string
-  popout: React.ReactNode
-  setPopout: (popout: React.ReactNode) => void
-  userSettings: UserSettings | undefined
-  setUserSettings: (userSettings: UserSettings) => void
-  panelHeader: React.ReactNode
-}> = ({id, popout, setPopout, userSettings, setUserSettings, panelHeader}) => {
+export interface Props {
+  id: string;
+  popout: React.ReactNode;
+  setPopout: (popout: React.ReactNode) => void;
+  userSettings: UserSettings | undefined;
+  setUserSettings: (userSettings: UserSettings) => void;
+  panelHeader: React.ReactNode;
+}
+
+const Settings: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({props}) => {
+  const {id, popout, setPopout, userSettings, setUserSettings, panelHeader} = props;
+
   useEffect(() => SetupResizeObserver("settings_resize"), []);
 
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
 
   const saveUserSettings = () => {
-    if (!group && !teacher || popout != null) return
-    setPopout(<Loader/>)
+    if (!group && !teacher || popout != null) return;
+    setPopout(<Loader/>);
     setUserSettings({
       group: group ?? "",
       groupLabel: groupLabel ?? "",
       teacher: teacher ?? "",
       subgroup: subgroup ?? "1 и 2",
-    })
+    });
     SaveUserSettings({
       group: group ?? "",
       groupLabel: groupLabel ?? "",
@@ -43,12 +47,12 @@ const Settings: FC<{
       .finally(() => {
         setPopout(null)
         routeNavigator.replace("/")
-      })
-  }
+      });
+  };
 
   const deleteUserSettings = () => {
-    if (popout != null) return
-    setPopout(<Loader/>)
+    if (popout != null) return;
+    setPopout(<Loader/>);
     DeleteUserSettings()
       .then(() => {
         DeleteSlidesSheet()
@@ -56,71 +60,71 @@ const Settings: FC<{
           .catch(console.error)
           .finally(() => setPopout(null))
       })
-      .catch(console.error)
-  }
+      .catch(console.error);
+  };
 
-  const [groupOptions, setGroupOptions] = useState<Option[] | undefined>()
+  const [groupOptions, setGroupOptions] = useState<Option[] | undefined>();
   const updateGroups = () => {
-    setPopout(<Loader/>)
+    setPopout(<Loader/>);
     GetGroups()
       .then(setGroupOptions)
       .catch(console.error)
-      .finally(() => setPopout(null))
-  }
+      .finally(() => setPopout(null));
+  };
 
-  const [group, setGroup] = useState(userSettings?.group)
-  const [groupLabel, setGroupLabel] = useState(userSettings?.groupLabel)
+  const [group, setGroup] = useState(userSettings?.group);
+  const [groupLabel, setGroupLabel] = useState(userSettings?.groupLabel);
   const changeGroup = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTeacher("")
-    setGroup(e.target.value)
-    setGroupLabel(groupOptions?.find(option => option.value == e.target.value)?.label)
-  }
+    setTeacher("");
+    setGroup(e.target.value);
+    setGroupLabel(groupOptions?.find(option => option.value == e.target.value)?.label);
+  };
 
-  const [teacherOptions, setTeacherOptions] = useState<Option[] | undefined>()
+  const [teacherOptions, setTeacherOptions] = useState<Option[] | undefined>();
   const updateTeachers = () => {
-    setPopout(<Loader/>)
+    setPopout(<Loader/>);
     GetTeachers()
       .then(setTeacherOptions)
       .catch(console.error)
-      .finally(() => setPopout(null))
-  }
+      .finally(() => setPopout(null));
+  };
 
-  const [teacher, setTeacher] = useState(userSettings?.teacher)
+  const [teacher, setTeacher] = useState(userSettings?.teacher);
   const changeTeacher = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setGroup("")
-    setTeacher(e.target.value)
-  }
+    setGroup("");
+    setTeacher(e.target.value);
+  };
 
   const [subgroups,] = useState<Option[]>([
     {'label': '1 подгруппа', 'value': '1'},
     {'label': '2 подгруппа', 'value': '2'},
     {'label': '1 и 2 подгруппы', 'value': '1 и 2'},
-  ])
+  ]);
 
-  const [subgroup, setSubgroup] = useState(userSettings?.subgroup)
-  const changeSubgroup = (e: React.ChangeEvent<HTMLSelectElement>) => setSubgroup(e.target.value as Subgroup)
+  const [subgroup, setSubgroup] = useState(userSettings?.subgroup);
+  const changeSubgroup = (e: React.ChangeEvent<HTMLSelectElement>) => setSubgroup(e.target.value as Subgroup);
 
   useEffect(() => {
-    if (!!group && (!groupOptions || groupOptions.length == 0)) updateGroups()
-    else if (!!teacher && (!teacherOptions || teacherOptions.length == 0)) updateTeachers()
+    if (!!group && (!groupOptions || groupOptions.length == 0)) updateGroups();
+    else if (!!teacher && (!teacherOptions || teacherOptions.length == 0)) updateTeachers();
   }, [group, teacher]);
 
-  const [type, setType] = useState<string | undefined>()
+  const [type, setType] = useState<string | undefined>();
   useEffect(() => {
-    if (userSettings) setType(userSettings.group != "" ? config.texts.Group : config.texts.Teacher)
+    if (userSettings) setType(userSettings.group != "" ? config.texts.Group : config.texts.Teacher);
   }, []);
 
   useEffect(() => {
-    if (!type) return
+    if (!type) return;
     if (type == config.texts.Group) {
-      setTeacher(userSettings?.teacher)
+      setTeacher(userSettings?.teacher);
     } else {
-      setGroup(userSettings?.group)
-      setSubgroup(userSettings?.subgroup)
+      setGroup(userSettings?.group);
+      setSubgroup(userSettings?.subgroup);
     }
   }, [type]);
 
-  const changeType = (e: React.ChangeEvent<HTMLSelectElement>) => setType(e.target.value)
+  const changeType = (e: React.ChangeEvent<HTMLSelectElement>) => setType(e.target.value);
 
   return <Panel id={id}>
     {panelHeader}
@@ -245,7 +249,7 @@ const Settings: FC<{
         />
       </>}
     </div>
-  </Panel>
+  </Panel>;
 };
 
 export default Settings;

@@ -1,13 +1,17 @@
-import React, {FC, useEffect} from "react";
+import React, {FC, HtmlHTMLAttributes, useEffect} from "react";
 import {Cell, Panel} from "@vkontakte/vkui";
 import config from "../etc/config.json";
 import {SetupResizeObserver} from "../utils/utils.tsx";
 
-const Abitur: FC<{
-  id: string,
-  panelHeader: React.ReactNode
-}> = ({id, panelHeader}) => {
-  useEffect(() => SetupResizeObserver(id+"_resize"), []);
+export interface Props {
+  id: string;
+  panelHeader: React.ReactNode;
+}
+
+const Abitur: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({props}) => {
+  const {id, panelHeader} = props;
+
+  useEffect(() => SetupResizeObserver(id + "_resize"), []);
 
   const elements = [
     {
@@ -54,11 +58,11 @@ const Abitur: FC<{
       label: 'Часто задаваемые вопросы',
       value: 'abitur/faq-abitur/#textbody'
     },
-  ] as { label: string, value: string, disabled?: boolean }[]
+  ] as { label: string, value: string, disabled?: boolean; }[];
 
   return <Panel id={id}>
     {panelHeader}
-    <div id={id+"_resize"}>
+    <div id={id + "_resize"}>
       {elements.map((element) => <Cell
         key={element.value}
         href={`${config.hrefs.college}/${element.value}`}
@@ -68,7 +72,7 @@ const Abitur: FC<{
         disabled={element.disabled}
       />)}
     </div>
-  </Panel>
-}
+  </Panel>;
+};
 
 export default Abitur;

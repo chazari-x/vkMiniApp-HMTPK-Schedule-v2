@@ -2,22 +2,22 @@ import {ReactNode, useEffect, useState} from 'react';
 import {Epic, SplitCol, SplitLayout} from '@vkontakte/vkui';
 import {useActiveVkuiLocation, useRouteNavigator} from '@vkontakte/vk-mini-apps-router';
 import {DEFAULT_VIEW_PANELS} from './routes';
-import MySchedule from "./panels/MySchedule.tsx";
 import Loader from "./components/Loader.tsx";
-import Information from "./panels/Information.tsx";
 import {Option, UserSettings} from "./types.ts";
 import {GetUserSettings} from "./api/api.ts";
-import Settings from "./panels/Settings.tsx";
-import Header from "./components/Header.tsx";
-import GroupSchedule from "./panels/GroupSchedule.tsx";
-import GroupSelector from "./panels/GroupSelector.tsx";
-import TeacherSchedule from "./panels/TeacherSchedule.tsx";
-import TeacherSelector from "./panels/TeacherSelector.tsx";
-import Menu from "./components/Menu.tsx";
 import config from "./etc/config.json";
-import College from "./panels/College.tsx";
-import Abitur from "./panels/Abitur.tsx";
-import Announces from "./panels/Announces.tsx";
+import Header from "./components/Header.tsx";
+import Menu from "./components/Menu.tsx";
+import Announces from "./lazy/Announces.tsx";
+import Abitur from "./lazy/Abitur.tsx";
+import College from "./lazy/College.tsx";
+import Information from "./lazy/Information.tsx";
+import TeacherSelector from "./lazy/TeacherSelector.tsx";
+import TeacherSchedule from "./lazy/TeacherSchedule.tsx";
+import GroupSelector from "./lazy/GroupSelector.tsx";
+import GroupSchedule from "./lazy/GroupSchedule.tsx";
+import Settings from "./lazy/Settings.tsx";
+import MySchedule from "./lazy/MySchedule.tsx";
 
 export const App = () => {
   const {panel: activePanel = DEFAULT_VIEW_PANELS.MySchedule} = useActiveVkuiLocation();
@@ -136,10 +136,7 @@ export const App = () => {
             setPopout={setPopout}
             userSettings={userSettings}
             setUserSettings={setUserSettings}
-            panelHeader={<Header
-              header={header} toggleContext={toggleContext}
-              // disabled={!userSettings.teacher && !userSettings.group}
-            />}
+            panelHeader={<Header header={header} toggleContext={toggleContext}/>}
           />
           <GroupSchedule
             id={DEFAULT_VIEW_PANELS.GroupSchedule}
@@ -181,14 +178,17 @@ export const App = () => {
           <Information
             id={DEFAULT_VIEW_PANELS.Information}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+            setPopout={setPopout}
           />
           <College
             id={DEFAULT_VIEW_PANELS.College}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+            setPopout={setPopout}
           />
           <Abitur
             id={DEFAULT_VIEW_PANELS.Abitur}
             panelHeader={<Header header={header} toggleContext={toggleContext}/>}
+            setPopout={setPopout}
           />
           <Announces
             id={DEFAULT_VIEW_PANELS.Announce}

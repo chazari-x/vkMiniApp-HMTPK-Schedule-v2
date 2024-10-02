@@ -1,14 +1,18 @@
-import {FC, ReactNode, useEffect} from 'react';
+import {FC, HtmlHTMLAttributes, ReactNode, useEffect} from 'react';
 import {Link, Panel, Paragraph, Separator} from '@vkontakte/vkui';
 import "@vkontakte/icons";
 import {Icon24ExternalLinkOutline} from "@vkontakte/icons";
 import config from "../etc/config.json";
 import {SetupResizeObserver} from "../utils/utils.tsx";
 
-const Information: FC<{
-  id: string,
-  panelHeader: ReactNode
-}> = ({id, panelHeader}) => {
+export interface Props {
+  id: string;
+  panelHeader: ReactNode;
+}
+
+const Information: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({props}) => {
+  const {id, panelHeader} = props;
+
   useEffect(() => SetupResizeObserver("information_resize"), []);
 
   return <Panel id={id}>
@@ -17,15 +21,15 @@ const Information: FC<{
       <Paragraph
         children={<div>{config.texts.AppInformation}</div>}
       />
-      <Separator />
+      <Separator/>
       <Paragraph
         children={<div>{config.texts.CheckScheduleOnSite}</div>}
       />
-      <Separator />
+      <Separator/>
       <Paragraph
         children={<div>{config.texts.HowUseApplication}</div>}
       />
-      <Separator />
+      <Separator/>
       <Paragraph
         children={<div>
           <Link href={config.group.href} target="_blank">
@@ -33,7 +37,7 @@ const Information: FC<{
           </Link> {config.texts.ErrorsOrInaccuracies}
         </div>}
       />
-      <Separator />
+      <Separator/>
       <Paragraph
         children={<div>
           <Link href='https://hmtpk.ru/' target="_blank">
@@ -41,12 +45,12 @@ const Information: FC<{
           </Link> {config.texts.OfficialSource}
         </div>}
       />
-      <Separator />
+      <Separator/>
       <Paragraph
         children={<div>{config.texts.SchedulePreparedIn1c}</div>}
       />
     </div>
-  </Panel>
-}
+  </Panel>;
+};
 
 export default Information;

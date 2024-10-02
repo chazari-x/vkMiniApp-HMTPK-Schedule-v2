@@ -19,7 +19,7 @@ async function token() {
 async function sendRequest(href: string) {
   const t = await token()
   if (t === "") {
-    throw new Error(config.errors.Token)
+    throw new Error(config.errors.TokenIsNull + " " + config.errors.TryAgainLater)
   }
 
   try {
@@ -28,27 +28,23 @@ async function sendRequest(href: string) {
       body: t
     })
 
+    const responseJson = await response.json() as {
+      error: string | undefined
+    }
+
     if (!response.ok) {
-      switch (response.status) {
-        case 408:
-          throw new Error(config.errors.RequestsTimeout)
-        case 401:
-          throw new Error(config.errors.Token)
-        case 500:
-          if ((await response.json()).error == "hmtpk not working") {
-            throw new Error(config.errors.TimeoutExceeded)
-          }
-          throw new Error(config.errors.APIError)
-        default:
-          throw new Error(config.errors.APINotWorking)
+      if (!responseJson.error) {
+        throw new Error(config.errors.APINotWorking + " " + config.errors.TryAgainLater)
       }
+
+      throw new Error(responseJson.error + ". " + config.errors.TryAgainLater)
     }
 
     return await response.json()
   } catch (error) {
     if (error instanceof TypeError) {
       console.log(error)
-      return new Error(config.errors.APINotWorking)
+      return new Error(config.errors.APINotWorking + " " + config.errors.TryAgainLater)
     } else {
       throw error
     }

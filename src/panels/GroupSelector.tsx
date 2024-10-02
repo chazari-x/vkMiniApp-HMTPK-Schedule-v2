@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, HtmlHTMLAttributes, useEffect, useState} from "react";
 import {Button, Cell, CustomSelect, FormItem, Panel, Placeholder, Search} from "@vkontakte/vkui";
 import {Icon16CancelCircleOutline, Icon24Done} from "@vkontakte/icons";
 import config from "../etc/config.json";
@@ -9,48 +9,50 @@ import {GetGroups} from "../api/api.ts";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
 import {SetupResizeObserver} from "../utils/utils.tsx";
 
-const GroupSelector: FC<{
-  id: string,
-  panelHeader: React.ReactNode
-  setPopout: (popout: React.ReactNode) => void
-  option: Option | undefined
-  setOption: (option: Option) => void
-  subgroup: string
-  setSubgroup: (subgroup: string) => void
-}> = ({id, option, setOption, subgroup, setSubgroup, panelHeader, setPopout}) => {
+export interface Props {
+  id: string;
+  panelHeader: React.ReactNode;
+  setPopout: (popout: React.ReactNode) => void;
+  option: Option | undefined;
+  setOption: (option: Option) => void;
+  subgroup: string;
+  setSubgroup: (subgroup: string) => void;
+}
+
+const GroupSelector: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({props}) => {
+  const {id, option, setOption, subgroup, setSubgroup, panelHeader, setPopout} = props;
+
   useEffect(() => SetupResizeObserver("group_selector_resize"), []);
   const routeNavigator = useRouteNavigator();
 
   const {panel} = useActiveVkuiLocation();
   const [params,] = useSearchParams();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   useEffect(() => {
     if (panel !== id) return;
 
-    if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      return
-    }
+    if (!params.get('day') || !params.get('month') || !params.get('year')) return;
 
-    let day = params.get('day')!
-    let month = params.get('month')!
-    const year = params.get('year')!
+    let day = params.get('day')!;
+    let month = params.get('month')!;
+    const year = params.get('year')!;
 
-    if (day.length === 1) day = `0${day}`
-    if (month.length === 1)  month = `0${month}`
+    if (day.length === 1) day = `0${day}`;
+    if (month.length === 1) month = `0${month}`;
 
-    const date = new Date(Date.parse(`${year}-${month}-${day}`))
-    setSelectedDate(date)
+    const date = new Date(Date.parse(`${year}-${month}-${day}`));
+    setSelectedDate(date);
   }, []);
 
-  const [options, setOptions] = useState<Option[] | undefined>()
+  const [options, setOptions] = useState<Option[] | undefined>();
   useEffect(() => updateOptions(), []);
   const updateOptions = () => {
-    setPopout(<Loader/>)
+    setPopout(<Loader/>);
     GetGroups()
       .then(setOptions)
       .catch(console.error)
-      .finally(() => setPopout(null))
-  }
+      .finally(() => setPopout(null));
+  };
 
   const [search, setSearch] = React.useState('');
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +68,7 @@ const GroupSelector: FC<{
     {'label': '1 подгруппа', 'value': '1'},
     {'label': '2 подгруппа', 'value': '2'},
     {'label': '1 и 2 подгруппы', 'value': '1 и 2'},
-  ])
+  ]);
 
   return <Panel id={id}>
     {panelHeader}
@@ -110,7 +112,7 @@ const GroupSelector: FC<{
         </div>
       </div>
     </div>
-  </Panel>
-}
+  </Panel>;
+};
 
 export default GroupSelector;

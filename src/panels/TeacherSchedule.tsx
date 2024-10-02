@@ -1,8 +1,8 @@
 import {Button, Calendar, LocaleProvider, Panel, Placeholder, PullToRefresh, Spinner,} from "@vkontakte/vkui";
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, HtmlHTMLAttributes, useEffect, useState} from "react";
 import {CapitalizeFirstLetter, FormatName, SetupResizeObserver} from "../utils/utils";
 import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
-import config from "../etc/config.json"
+import config from "../etc/config.json";
 import {Option} from "../types.ts";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import {GetTeacherSchedule} from "../api/api.ts";
@@ -14,37 +14,41 @@ import CheckScheduleButton from "../components/CheckScheduleButton.tsx";
 import ShareButton from "../components/ShareButton.tsx";
 import NewAlert from "../components/Alert.tsx";
 
-const TeacherSchedule: FC<{
-  id: string
-  setPopout: (popout: React.ReactNode) => void
-  option: Option | undefined
-  setOption: (option: Option) => void
-  popout: React.ReactNode
-  panelHeader: React.ReactNode
-  minDate: Date
-  maxDate: Date
-}> = ({id, popout, option, setOption, panelHeader, minDate, maxDate}) => {
+export interface Props {
+  id: string;
+  setPopout: (popout: React.ReactNode) => void;
+  option: Option | undefined;
+  setOption: (option: Option) => void;
+  popout: React.ReactNode;
+  panelHeader: React.ReactNode;
+  minDate: Date;
+  maxDate: Date;
+}
+
+const TeacherSchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({props}) => {
+  const {id, popout, option, setOption, panelHeader, minDate, maxDate} = props;
+
   useEffect(() => SetupResizeObserver("teacher_schedule_resize"), []);
 
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
   const {panel} = useActiveVkuiLocation();
 
-  const [dayNum, setDayNum] = useState<number | undefined>()
-  const [week, setWeek] = useState<number | undefined>()
-  const [year, setYear] = useState<number | undefined>()
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [dateParams, setDateParams] = useState<string>("")
-  const [calendar, setCalendar] = React.useState(false)
+  const [dayNum, setDayNum] = useState<number | undefined>();
+  const [week, setWeek] = useState<number | undefined>();
+  const [year, setYear] = useState<number | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [dateParams, setDateParams] = useState<string>("");
+  const [calendar, setCalendar] = React.useState(false);
 
-  const [errorMessage, setErrorMessage] = useState<string | undefined>()
-  const [fetching, setFetching] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [fetching, setFetching] = useState(false);
 
-  const [title,] = useState(config.texts.TeacherSchedule)
-  const [link, setLink] = useState(`${config.app.href}#/${id}`)
-  const [comment, setComment] = useState(`Узнайте актуальную информацию о занятиях в приложении «ХМТПК Расписание».`)
+  const [title,] = useState(config.texts.TeacherSchedule);
+  const [link, setLink] = useState(`${config.app.href}#/${id}`);
+  const [comment, setComment] = useState(`Узнайте актуальную информацию о занятиях в приложении «ХМТПК Расписание».`);
 
-  useEffect(() => update(), [params, panel])
+  useEffect(() => update(), [params, panel]);
   useEffect(() => update(), []);
   useEffect(() => onRefresh(), [option?.value, option?.label, week, year]);
   useEffect(() => changeComment(), [option?.label, week, year]);
@@ -52,67 +56,67 @@ const TeacherSchedule: FC<{
   const update = () => {
     if (panel !== id) return;
 
-    const value = params.get('value') ?? option?.value ?? ""
+    const value = params.get('value') ?? option?.value ?? "";
 
     if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`)
-      return
+      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`);
+      return;
     }
 
-    let day = params.get('day')!
-    let month = params.get('month')!
-    const year = params.get('year')!
+    let day = params.get('day')!;
+    let month = params.get('month')!;
+    const year = params.get('year')!;
 
     if ((!option || !option.label || !option.value) && value) {
-      setOption({label: value, value: value})
+      setOption({label: value, value: value});
     }
 
-    if (day.length === 1) day = `0${day}`
-    if (month.length === 1) month = `0${month}`
-    const date = new Date(Date.parse(`${year}-${month}-${day}`))
+    if (day.length === 1) day = `0${day}`;
+    if (month.length === 1) month = `0${month}`;
+    const date = new Date(Date.parse(`${year}-${month}-${day}`));
 
     if (date > maxDate || date <= minDate) {
-      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`)
-      return
+      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`);
+      return;
     }
 
-    setSelectedDate(date)
-    let dayNum = date.getDay() - 1
-    if (dayNum === -1) dayNum = 6
-    setDayNum(dayNum)
-    setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`)
-    setFetching(false)
-    setWeek(date.getWeek())
-    setYear(date.getFullYear())
-    changeComment(date)
-  }
+    setSelectedDate(date);
+    let dayNum = date.getDay() - 1;
+    if (dayNum === -1) dayNum = 6;
+    setDayNum(dayNum);
+    setDateParams(`?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}`);
+    setFetching(false);
+    setWeek(date.getWeek());
+    setYear(date.getFullYear());
+    changeComment(date);
+  };
 
   const change = (date: Date | undefined) => {
-    if (date == undefined || option == undefined) return
-    setCalendar(false)
-    routeNavigator.replace(`/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`)
-  }
+    if (date == undefined || option == undefined) return;
+    setCalendar(false);
+    routeNavigator.replace(`/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`);
+  };
 
   const onRefresh = () => {
-    if (fetching || !option || !option.value || !selectedDate) return
+    if (fetching || !option || !option.value || !selectedDate) return;
     setErrorMessage(undefined);
     setFetching(true);
     GetTeacherSchedule(selectedDate, option.value)
       .then((schedule) => window.schedule[`${option.value}-${selectedDate.getFullYear()}-${selectedDate.getWeek()}`] = schedule)
       .catch((err: Error) => setErrorMessage(err.message))
-      .finally(() => setFetching(false))
+      .finally(() => setFetching(false));
   };
 
   const changeComment = (date: Date = selectedDate ?? new Date()) => {
     if (option != undefined && option.value != "") {
-      setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`)
+      setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`);
       setComment(`Расписание преподавателя ${option.label} на ${date.toLocaleDateString('ru',
-        {day: '2-digit', month: 'long', year: 'numeric'})}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`)
+        {day: '2-digit', month: 'long', year: 'numeric'})}. Ознакомьтесь с деталями в приложении «ХМТПК Расписание».`);
     } else {
-      setLink(`${config.app.href}#/${id}`)
-      setComment(`Узнайте актуальную информацию о занятиях в приложении «ХМТПК Расписание».`)
+      setLink(`${config.app.href}#/${id}`);
+      setComment(`Узнайте актуальную информацию о занятиях в приложении «ХМТПК Расписание».`);
     }
-  }
+  };
 
   return <Panel id={id}>
     {panelHeader}
@@ -183,7 +187,7 @@ const TeacherSchedule: FC<{
         </div>}
       </div>
     </PullToRefresh>
-  </Panel>
+  </Panel>;
 };
 
 export default TeacherSchedule;

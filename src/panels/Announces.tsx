@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from "react";
+import React, {FC, HtmlHTMLAttributes, useEffect, useState} from "react";
 import {SetupResizeObserver} from "../utils/utils.tsx";
 import {Pagination, Panel, Separator} from "@vkontakte/vkui";
 import {Announce as AnnounceType} from "../types.ts";
@@ -6,41 +6,44 @@ import {GetAnnounces} from "../api/api.ts";
 import Loader from "../components/Loader.tsx";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import {Announce, AnnounceSkeleton} from "../components/Announce.tsx";
-import config from "../etc/config.json";
 import NewAlert from "../components/Alert.tsx";
 
-const Announces: FC<{
-  id: string
-  popout: React.ReactNode
-  setPopout: (popout: React.ReactNode) => void
-  panelHeader: React.ReactNode
-}> = ({id, popout, setPopout, panelHeader}) => {
+export interface Props {
+  id: string;
+  popout: React.ReactNode;
+  setPopout: (popout: React.ReactNode) => void;
+  panelHeader: React.ReactNode;
+}
+
+const Announces: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({props}) => {
+  const {id, popout, setPopout, panelHeader} = props;
+
   useEffect(() => SetupResizeObserver("announce_resize"), []);
 
   const routeNavigator = useRouteNavigator();
   const [params,] = useSearchParams();
   const {panel} = useActiveVkuiLocation();
-  const [page, setPage] = useState<number | undefined>()
+  const [page, setPage] = useState<number | undefined>();
   useEffect(() => {
     if (panel !== id) return;
 
     if (!params.get('page')) {
-      routeNavigator.replace(`/${id}?page=1`)
-      return
+      routeNavigator.replace(`/${id}?page=1`);
+      return;
     }
 
     const page = parseInt(params.get('page')!)
     if (isNaN(page)) {
-      routeNavigator.replace(`/${id}?page=1`)
-      return
+      routeNavigator.replace(`/${id}?page=1`);
+      return;
     }
 
-    setPage(page)
-  }, [params, panel])
+    setPage(page);
+  }, [params, panel]);
 
-  const [lastPage, setLastPage] = useState<number | undefined>()
-  const [announces, setAnnounces] = useState<AnnounceType[] | undefined>()
-  const [error, setError] = useState<string | undefined>()
+  const [lastPage, setLastPage] = useState<number | undefined>();
+  const [announces, setAnnounces] = useState<AnnounceType[] | undefined>();
+  const [error, setError] = useState<string | undefined>();
   useEffect(() => {
     if (!page) return
     setAnnounces(undefined)
@@ -52,16 +55,14 @@ const Announces: FC<{
       })
       .catch((e) => {
         console.error(e)
-        if (e.message == config.errors.APIError) {
-          setError(config.errors.APIError)
-        }
+        setError(e)
       })
       .finally(() => setPopout(null))
-  }, [page])
+  }, [page]);
 
   const changePage = (page: number) => {
     routeNavigator.push(`/${id}?page=${page}`)
-  }
+  };
 
   return <Panel id={id}>
     {panelHeader}
@@ -70,7 +71,7 @@ const Announces: FC<{
         ? announces ? announces.map((announce, index) => <>
           <Announce announce={announce}/>
           {index != announces?.length - 1 && <Separator/>}
-        </>) : error == config.errors.APIError
+        </>) : error != ""
           ? <NewAlert children="Страница сломана на сайте колледжа" severity="warning"/>
           : error != undefined && <NewAlert children={error} severity="error"/>
         : [1, 2].map((key, index) => <>
@@ -88,7 +89,7 @@ const Announces: FC<{
         />
       </div>}
     </div>
-  </Panel>
-}
+  </Panel>;
+};
 
 export default Announces;
