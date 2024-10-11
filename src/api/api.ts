@@ -28,9 +28,7 @@ async function sendRequest(href: string) {
       body: t
     })
 
-    const responseJson = await response.json() as {
-      error: string | undefined
-    }
+    const responseJson = await response.json()
 
     if (!response.ok) {
       if (!responseJson.error) {
@@ -40,7 +38,9 @@ async function sendRequest(href: string) {
       throw new Error(responseJson.error + ". " + config.errors.TryAgainLater)
     }
 
-    return await response.json()
+    console.log(responseJson)
+
+    return responseJson
   } catch (error) {
     if (error instanceof TypeError) {
       console.log(error)
@@ -84,7 +84,8 @@ export async function GetGroupSchedule(date: Date, group: string) {
       const parsed = JSON.parse(data) as NewSchedule;
 
       // Если расписание не устарело
-      if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
+      if (parsed.schedule && parsed.schedule.length > 0
+        && parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
         return parsed;
       }
     }
@@ -110,7 +111,8 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
       const parsed = JSON.parse(data) as NewSchedule;
 
       // Если расписание не устарело
-      if (parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
+      if (parsed.schedule && parsed.schedule.length > 0
+        && parsed.timestamp != undefined && parsed.timestamp + 1000 * 60 > Date.now()) {
         return parsed;
       }
     }

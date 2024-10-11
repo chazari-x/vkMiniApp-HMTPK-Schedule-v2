@@ -1,6 +1,6 @@
 import {Button, Calendar, LocaleProvider, Panel, Placeholder, PullToRefresh, Spinner,} from "@vkontakte/vkui";
 import React, {FC, HtmlHTMLAttributes, useEffect, useState} from "react";
-import {CapitalizeFirstLetter, FormatName, SetupResizeObserver} from "../utils/utils";
+import {CapitalizeFirstLetter, FormatName, getUTC3Date, SetupResizeObserver} from "../utils/utils";
 import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import config from "../etc/config.json";
 import {Option} from "../types.ts";
@@ -59,7 +59,7 @@ const TeacherSchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>
     const value = params.get('value') ?? option?.value ?? "";
 
     if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      routeNavigator.replace(`/${id}?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${value}`);
+      routeNavigator.replace(`/${id}?day=${(getUTC3Date()).getDate()}&month=${(getUTC3Date()).getMonth() + 1}&year=${(getUTC3Date()).getFullYear()}&value=${value}`);
       return;
     }
 
@@ -73,10 +73,10 @@ const TeacherSchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>
 
     if (day.length === 1) day = `0${day}`;
     if (month.length === 1) month = `0${month}`;
-    const date = new Date(Date.parse(`${year}-${month}-${day}`));
+    const date = getUTC3Date(Date.parse(`${year}-${month}-${day}`));
 
     if (date > maxDate || date <= minDate) {
-      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}&value=${encodeURIComponent(value)}`);
+      routeNavigator.replace(`?day=${(getUTC3Date()).getDate()}&month=${(getUTC3Date()).getMonth() + 1}&year=${(getUTC3Date()).getFullYear()}&value=${encodeURIComponent(value)}`);
       return;
     }
 
@@ -107,7 +107,7 @@ const TeacherSchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>
       .finally(() => setFetching(false));
   };
 
-  const changeComment = (date: Date = selectedDate ?? new Date()) => {
+  const changeComment = (date: Date = selectedDate ?? getUTC3Date()) => {
     if (option != undefined && option.value != "") {
       setLink(`${config.app.href}#/${id}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(option.value)}`);
       setComment(`Расписание преподавателя ${option.label} на ${date.toLocaleDateString('ru',

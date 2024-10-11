@@ -2,7 +2,7 @@ import {Button, Calendar, LocaleProvider, Panel, Placeholder, PullToRefresh, Spi
 import {FC, HtmlHTMLAttributes, ReactNode, useEffect, useState} from "react";
 import {Popover} from "@vkontakte/vkui/dist/components/Popover/Popover";
 import {GetGroupSchedule, GetTeacherSchedule} from "../api/api";
-import {CapitalizeFirstLetter, SetupResizeObserver} from "../utils/utils.tsx";
+import {CapitalizeFirstLetter, getUTC3Date, SetupResizeObserver} from "../utils/utils.tsx";
 import {UserSettings} from "../types.ts";
 import {useActiveVkuiLocation, useRouteNavigator, useSearchParams} from "@vkontakte/vk-mini-apps-router";
 import {Icon24Settings} from "@vkontakte/icons";
@@ -56,7 +56,7 @@ const MySchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = (
     if (panel !== id) return;
 
     if (!params.get('day') || !params.get('month') || !params.get('year')) {
-      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}`);
+      routeNavigator.replace(`?day=${(getUTC3Date()).getDate()}&month=${(getUTC3Date()).getMonth() + 1}&year=${(getUTC3Date()).getFullYear()}`);
       return;
     }
 
@@ -67,10 +67,10 @@ const MySchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = (
     if (day.length === 1) day = `0${day}`;
     if (month.length === 1) month = `0${month}`;
 
-    const date = new Date(Date.parse(`${year}-${month}-${day}`));
+    const date = getUTC3Date(Date.parse(`${year}-${month}-${day}`));
 
     if (date > maxDate || date <= minDate) {
-      routeNavigator.replace(`?day=${(new Date()).getDate()}&month=${(new Date()).getMonth() + 1}&year=${(new Date()).getFullYear()}`);
+      routeNavigator.replace(`?day=${(getUTC3Date()).getDate()}&month=${(getUTC3Date()).getMonth() + 1}&year=${(getUTC3Date()).getFullYear()}`);
       return;
     }
 
@@ -104,7 +104,7 @@ const MySchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = (
       .finally(() => setFetching(false));
   };
 
-  const changeComment = (date: Date = selectedDate ?? new Date()) => {
+  const changeComment = (date: Date = selectedDate ?? getUTC3Date()) => {
     if (userSettings.teacher) {
       setTitle(config.texts.TeacherSchedule);
       setLink(`${config.app.href}#/${DEFAULT_VIEW_PANELS.TeacherSchedule}?day=${date.getDate()}&month=${date.getMonth() + 1}&year=${date.getFullYear()}&value=${encodeURIComponent(userSettings.teacher)}`);

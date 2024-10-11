@@ -12,12 +12,12 @@ const Schedule: FC<{
 }> = ({subgroup, schedule, dayNum}) => {
   const [mergedLessons, setMergedLessons] = useState<MergedLesson[] | undefined>()
   useEffect(() => {
-    setMergedLessons(MergeLessons(schedule && dayNum != undefined && schedule[dayNum].lesson ? schedule[dayNum].lesson : []))
+    setMergedLessons(MergeLessons(schedule && dayNum != undefined && schedule[dayNum] && schedule[dayNum].lesson ? schedule[dayNum].lesson : []))
   }, [schedule, dayNum]);
 
   return <>
-    {schedule != undefined && dayNum != undefined
-      ? mergedLessons != undefined && mergedLessons.length > 0 && schedule[dayNum].lesson != null
+    {schedule && dayNum != undefined && schedule[dayNum]
+      ? mergedLessons && mergedLessons.length > 0 && schedule[dayNum].lesson != null
         ? mergedLessons.map((mergedLesson, index) => {
           let c = 'var(--vkui--color_text_secondary)'
           let color = 'var(--vkui--color_text_tertiary)'

@@ -7,7 +7,7 @@ import {Option} from "../types.ts";
 import Loader from "../components/Loader.tsx";
 import {GetTeachers} from "../api/api.ts";
 import {DEFAULT_VIEW_PANELS} from "../routes.ts";
-import {SetupResizeObserver} from "../utils/utils.tsx";
+import {getUTC3Date, SetupResizeObserver} from "../utils/utils.tsx";
 
 export interface Props {
   id: string;
@@ -25,7 +25,7 @@ const TeacherSelector: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>
 
   const {panel} = useActiveVkuiLocation();
   const [params,] = useSearchParams();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(getUTC3Date());
   useEffect(() => {
     if (panel !== id) return;
 
@@ -38,7 +38,7 @@ const TeacherSelector: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>
     if (day.length === 1) day = `0${day}`;
     if (month.length === 1) month = `0${month}`;
 
-    const date = new Date(Date.parse(`${year}-${month}-${day}`));
+    const date = getUTC3Date(Date.parse(`${year}-${month}-${day}`));
     setSelectedDate(date);
   }, []);
 

@@ -1,5 +1,6 @@
 import bridge from "@vkontakte/vk-bridge";
 import {Lesson, MergedLesson} from "../types.ts";
+import {toZonedTime} from 'date-fns-tz';
 
 export const CapitalizeFirstLetter = (str: string) => {
   const chars = str.split('');
@@ -89,4 +90,13 @@ export function MergeLessons(lessons: Lesson[]) {
     }
     return acc;
   }, []);
+}
+
+
+export function getUTC3Date (date?: number | string | Date): Date {
+  let currentDate: Date
+  if (date) currentDate = new Date(date);
+  else currentDate = new Date();
+
+  return toZonedTime(currentDate, 'Etc/GMT-5');
 }

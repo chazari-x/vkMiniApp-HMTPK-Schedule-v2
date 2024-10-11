@@ -1,6 +1,7 @@
 import {FC, useState} from "react";
 import {HorizontalScroll, Tabs, TabsItem} from "@vkontakte/vkui";
 import {format} from "@vkontakte/vkui/dist/lib/date";
+import {getUTC3Date} from "../utils/utils.tsx";
 
 const Scrollable: FC<{
   selectedDate: Date,
@@ -8,13 +9,13 @@ const Scrollable: FC<{
   disabled?: boolean
 }> = ({selectedDate, setSelectedDate, disabled}) => {
   const addDays = (date: Date, days: number) => {
-    const result = new Date(date);
+    const result = getUTC3Date(date);
     result.setDate(result.getDate() + days);
     return result;
   }
 
-  const [maxDate, ] = useState((new Date()).setMonth((new Date()).getMonth() + 1))
-  const [minDate, ] = useState((new Date()).setFullYear((new Date()).getFullYear() - 10))
+  const [maxDate, ] = useState((getUTC3Date()).setMonth((getUTC3Date()).getMonth() + 1))
+  const [minDate, ] = useState((getUTC3Date()).setFullYear((getUTC3Date()).getFullYear() - 10))
 
   return <div>
     <Tabs mode='accent' style={{display: 'flex', justifyContent: 'center'}}>

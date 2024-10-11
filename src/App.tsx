@@ -18,6 +18,7 @@ import GroupSelector from "./lazy/GroupSelector.tsx";
 import GroupSchedule from "./lazy/GroupSchedule.tsx";
 import Settings from "./lazy/Settings.tsx";
 import MySchedule from "./lazy/MySchedule.tsx";
+import {getUTC3Date} from "./utils/utils.tsx";
 
 export const App = () => {
   const {panel: activePanel = DEFAULT_VIEW_PANELS.MySchedule} = useActiveVkuiLocation();
@@ -72,8 +73,8 @@ export const App = () => {
 
   const {panel} = useActiveVkuiLocation();
 
-  const [maxDate,] = useState(new Date((new Date()).setMonth((new Date()).getMonth() + 1)))
-  const [minDate,] = useState(new Date((new Date()).setFullYear((new Date()).getFullYear() - 10)))
+  const [maxDate,] = useState(getUTC3Date((getUTC3Date()).setMonth((getUTC3Date()).getMonth() + 1)))
+  const [minDate,] = useState(getUTC3Date((getUTC3Date()).setFullYear((getUTC3Date()).getFullYear() - 10)))
 
   useEffect(() => {
     if (fetched && (!userSettings || (!userSettings.teacher && (!userSettings.group || !userSettings.groupLabel))) && panel == DEFAULT_VIEW_PANELS.MySchedule) {
