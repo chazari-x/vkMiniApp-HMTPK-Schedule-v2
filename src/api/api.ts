@@ -17,36 +17,37 @@ async function token() {
 
 // Отправить запрос на сервер
 async function sendRequest(href: string) {
-  const t = await token()
-  if (t === "") {
-    throw new Error(config.errors.TokenIsNull + " " + config.errors.TryAgainLater)
-  }
+  const t = await token();
+  console.debug("token created")
+
+  if (!t) throw new Error(`${config.errors.TokenIsNull} ${config.errors.TryAgainLater}`);
 
   try {
-    const response = await fetch(config.api.href + href, {
-      method: "POST",
-      body: t
-    })
+    const response = await fetch(`${config.api.href}${href}`, {method: "POST", body: t});
 
-    const responseJson = await response.json()
-
+    console.debug(response.statusText)
     if (!response.ok) {
-      if (!responseJson.error) {
-        throw new Error(config.errors.APINotWorking + " " + config.errors.TryAgainLater)
-      }
-
-      throw new Error(responseJson.error + ". " + config.errors.TryAgainLater)
+      const responseJson = await response.json().catch(() => null); // Безопасный парсинг JSON
+      if (responseJson?.error) throw new Error(`${responseJson.error}. ${config.errors.TryAgainLater}`);
+      throw new Error(`${config.errors.APINotWorking} ${config.errors.TryAgainLater}`);
     }
 
-    console.log(responseJson)
-
-    return responseJson
+    // Успешный ответ
+    const responseJson = await response.json();
+    console.log(responseJson);
+    return responseJson;
   } catch (error) {
     if (error instanceof TypeError) {
-      console.log(error)
-      return new Error(config.errors.APINotWorking + " " + config.errors.TryAgainLater)
+      console.debug("error instanceof TypeError")
+      console.error(error);
+      throw new Error(`${config.errors.APINotWorking} ${config.errors.TryAgainLater}`);
+    } else if (error instanceof Error) {
+      console.debug("error instanceof Error")
+      console.error(error);
+      throw error;
     } else {
-      throw error
+      console.error("Неизвестная ошибка:", error);
+      throw new Error(config.errors.TryAgainLater);
     }
   }
 }
@@ -127,60 +128,96 @@ export async function GetTeacherSchedule(date: Date, teacher: string) {
   return {timestamp, schedule};
 }
 
+function isOptionArray(data: unknown): data is Option[] {
+  return (
+    Array.isArray(data) &&
+    data.every(
+      (item) =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof item.label === "string" &&
+        typeof item.value === "string"
+    )
+  );
+}
+
 // Получить группы
-export async function GetGroups() {
-  const groups = window.localStorage.getItem('groups')
+export async function GetGroups(): Promise<Option[]> {
+  const groups = window.localStorage.getItem('groups');
+
   if (groups) {
-    return JSON.parse(groups) as Option[]
+    try {
+      const parsedGroups = JSON.parse(groups);
+      if (isOptionArray(parsedGroups)) {
+        return parsedGroups; // Возвращаем данные, если они корректны
+      } else {
+        console.warn("Некорректные данные в localStorage. Удаляем...");
+        window.localStorage.removeItem('groups'); // Очищаем, если данные некорректны
+      }
+    } catch (error) {
+      console.error("Ошибка при разборе JSON из localStorage:", error);
+      window.localStorage.removeItem('groups'); // Удаляем некорректные данные
+    }
   }
 
-  const href = '/groups'
-  const data = await sendRequest(href) as Option[]
-  window.localStorage.setItem('groups', JSON.stringify(data))
+  // Если данных нет или они некорректны, загружаем их через API
+  const href = '/groups';
+  const data = (await sendRequest(href)) as unknown;
 
-  return data
+  if (isOptionArray(data)) {
+    window.localStorage.setItem('groups', JSON.stringify(data)); // Сохраняем данные
+    return data;
+  } else {
+    throw new Error("Полученные данные от API не соответствуют типу Option[]");
+  }
 }
 
 // Получить преподавателей
-export async function GetTeachers() {
-  const teachers = window.localStorage.getItem('teachers')
+export async function GetTeachers(): Promise<Option[]> {
+  const teachers = window.localStorage.getItem('teachers');
+
   if (teachers) {
-    return JSON.parse(teachers) as Option[]
+    try {
+      const parsedTeachers = JSON.parse(teachers);
+      if (isOptionArray(parsedTeachers)) {
+        return parsedTeachers; // Возвращаем данные, если они корректны
+      } else {
+        console.warn("Некорректные данные в localStorage. Удаляем...");
+        window.localStorage.removeItem('teachers'); // Очищаем, если данные некорректны
+      }
+    } catch (error) {
+      console.error("Ошибка при разборе JSON из localStorage:", error);
+      window.localStorage.removeItem('teachers'); // Удаляем некорректные данные
+    }
   }
 
-  const href = '/teachers'
-  const data = await sendRequest(href) as Option[]
-  window.localStorage.setItem('teachers', JSON.stringify(data))
+  // Если данных нет или они некорректны, загружаем их через API
+  const href = '/teachers';
+  const data = (await sendRequest(href)) as unknown;
 
-  return data
+  if (isOptionArray(data)) {
+    window.localStorage.setItem('teachers', JSON.stringify(data)); // Сохраняем данные
+    return data;
+  } else {
+    throw new Error("Полученные данные от API не соответствуют типу Option[]");
+  }
 }
 
 // Удалить информацию о показе slides sheet
 export async function DeleteSlidesSheet() {
-  const response = await bridge.send('VKWebAppStorageSet', {
-    key: 'slidesSheet',
-    value: ''
-  })
-
+  const response = await bridge.send('VKWebAppStorageSet', {key: 'slidesSheet', value: ''})
   return response.result
 }
 
 // Сохранить информацию о показе slides sheet
 export async function SaveSlidesSheet(slidesSheet: boolean) {
-  const response = await bridge.send('VKWebAppStorageSet', {
-    key: 'slidesSheet',
-    value: JSON.stringify(slidesSheet)
-  })
-
+  const response = await bridge.send('VKWebAppStorageSet', {key: 'slidesSheet', value: JSON.stringify(slidesSheet)})
   return response.result
 }
 
 // Получить информацию о показе slides sheet
 export async function GetSlidesSheet() {
-  const response = await bridge.send('VKWebAppStorageGet', {
-    keys: ['slidesSheet']
-  })
-
+  const response = await bridge.send('VKWebAppStorageGet', {keys: ['slidesSheet']})
   return JSON.parse(response.keys[0].value) as boolean
 }
 
@@ -189,58 +226,37 @@ export function SendSlidesSheet() {
   return bridge.send('VKWebAppShowSlidesSheet', {
     slides: [
       {
-        media: {
-          blob: base64.one,
-          type: 'image'
-        },
+        media: {blob: base64.one, type: 'image'},
         title: config.onboardings.one.title,
         subtitle: config.onboardings.one.subtitle
       },
       {
-        media: {
-          blob: base64.two,
-          type: 'image'
-        },
+        media: {blob: base64.two, type: 'image'},
         title: config.onboardings.two.title,
         subtitle: config.onboardings.two.subtitle
       },
       {
-        media: {
-          blob: base64.three,
-          type: 'image'
-        },
+        media: {blob: base64.three, type: 'image'},
         title: config.onboardings.three.title,
         subtitle: config.onboardings.three.subtitle
       },
       {
-        media: {
-          blob: base64.four,
-          type: 'image'
-        },
+        media: {blob: base64.four, type: 'image'},
         title: config.onboardings.four.title,
         subtitle: config.onboardings.four.subtitle
       },
       {
-        media: {
-          blob: base64.five,
-          type: 'image'
-        },
+        media: {blob: base64.five, type: 'image'},
         title: config.onboardings.five.title,
         subtitle: config.onboardings.five.subtitle
       },
       {
-        media: {
-          blob: base64.six,
-          type: 'image'
-        },
+        media: {blob: base64.six, type: 'image'},
         title: config.onboardings.six.title,
         subtitle: config.onboardings.six.subtitle
       },
       {
-        media: {
-          blob: base64.seven,
-          type: 'image'
-        },
+        media: {blob: base64.seven, type: 'image'},
         title: config.onboardings.seven.title,
         subtitle: config.onboardings.seven.subtitle
       }
@@ -251,20 +267,13 @@ export function SendSlidesSheet() {
 
 // Сохранить пользовательские настройки
 export async function SaveUserSettings(userSettings: UserSettings) {
-  const response = await bridge.send('VKWebAppStorageSet', {
-    key: 'schedule',
-    value: JSON.stringify(userSettings)
-  })
-
+  const response = await bridge.send('VKWebAppStorageSet', {key: 'schedule', value: JSON.stringify(userSettings)})
   return response.result
 }
 
 // Получить пользовательские настройки
 export async function GetUserSettings() {
-  const response = await bridge.send('VKWebAppStorageGet', {
-    keys: ['schedule']
-  })
-
+  const response = await bridge.send('VKWebAppStorageGet', {keys: ['schedule']})
   const userSettings = JSON.parse(response.keys[0].value) as UserSettings
 
   if (!!userSettings.group && !userSettings.groupLabel) {
@@ -277,37 +286,24 @@ export async function GetUserSettings() {
 
 // Удалить пользовательские настройки
 export async function DeleteUserSettings() {
-  const response = await bridge.send('VKWebAppStorageSet', {
-    key: 'schedule',
-    value: ''
-  })
-
+  const response = await bridge.send('VKWebAppStorageSet', {key: 'schedule', value: ''})
   return response.result
 }
 
 export async function CloseApp() {
-  return await bridge.send('VKWebAppClose', {
-    status: 'success',
-  })
+  return await bridge.send('VKWebAppClose', {status: 'success'})
 }
 
 export function AppRecommend() {
-  setTimeout(() => {
-    bridge.send('VKWebAppRecommend')
-  }, 5000)
+  setTimeout(() => bridge.send('VKWebAppRecommend'), 5000)
 }
 
 export function AppJoinGroup() {
-  setTimeout(() => {
-    bridge.send('VKWebAppJoinGroup', {
-      group_id: config.group.id
-    })
-  }, 5000)
+  setTimeout(() => bridge.send('VKWebAppJoinGroup', {group_id: config.group.id}), 5000)
 }
 
 export async function AppAddToHomeScreenInfo() {
   const response = await bridge.send('VKWebAppAddToHomeScreenInfo')
-
   return !response.is_added_to_home_screen && response.is_feature_supported
 }
 

@@ -49,6 +49,10 @@ const Information: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = 
       <Paragraph
         children={<div>{config.texts.SchedulePreparedIn1c}</div>}
       />
+      <Separator/>
+      <div className="hmtpk-footer">
+        Х М Т П К
+      </div>
     </div>
   </Panel>;
 };

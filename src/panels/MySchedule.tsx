@@ -187,6 +187,10 @@ const MySchedule: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = (
 
           <ShareButton title={title} link={link} comment={comment}/>
         </div>}
+
+        <div className="hmtpk-footer">
+          Х М Т П К
+        </div>
       </div>
     </PullToRefresh>
   </Panel>;

@@ -63,7 +63,7 @@ const Settings: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({p
       .catch(console.error);
   };
 
-  const [groupOptions, setGroupOptions] = useState<Option[] | undefined>();
+  const [groupOptions, setGroupOptions] = useState<Option[]>([]);
   const updateGroups = () => {
     setPopout(<Loader/>);
     GetGroups()
@@ -80,7 +80,7 @@ const Settings: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({p
     setGroupLabel(groupOptions?.find(option => option.value == e.target.value)?.label);
   };
 
-  const [teacherOptions, setTeacherOptions] = useState<Option[] | undefined>();
+  const [teacherOptions, setTeacherOptions] = useState<Option[]>([]);
   const updateTeachers = () => {
     setPopout(<Loader/>);
     GetTeachers()
@@ -178,7 +178,7 @@ const Settings: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> = ({p
               <CustomSelect
                 disabled={!group}
                 placeholder={config.texts.SelectSubgroup}
-                options={subgroups}
+                options={subgroups ?? []}
                 onChange={changeSubgroup}
                 value={subgroup ?? "1 и 2"}
               />

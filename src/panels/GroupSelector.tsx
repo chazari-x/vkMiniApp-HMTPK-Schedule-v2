@@ -44,7 +44,7 @@ const GroupSelector: FC<{ props: Props; } & HtmlHTMLAttributes<HTMLDivElement>> 
     setSelectedDate(date);
   }, []);
 
-  const [options, setOptions] = useState<Option[] | undefined>();
+  const [options, setOptions] = useState<Option[]>([]);
   useEffect(() => updateOptions(), []);
   const updateOptions = () => {
     setPopout(<Loader/>);
